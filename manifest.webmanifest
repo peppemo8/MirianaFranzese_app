@@ -1,0 +1,17 @@
+{
+  "name": "Miriana Franzese App",
+  "short_name": "Miriana",
+  "description": "App di allenamento personalizzata per Miriana Franzese",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/MirianaFranzese_app/",
+  "scope": "/MirianaFranzese_app/",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "display": "standalone"
+}

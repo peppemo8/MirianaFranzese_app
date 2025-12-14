@@ -12,6 +12,11 @@
     <!-- App favicon: a single delicate 3D‑style pink petal on black background -->
     <!-- Updated app icon: smaller 3D petal on black background -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjMDAwIi8+CiAgPGVsbGlwc2UgY3g9IjMyIiBjeT0iNDIiIHJ4PSIxMCIgcnk9IjE1IiBmaWxsPSIjZmY0ZWI4Ii8+CiAgPGVsbGlwc2UgY3g9IjMyIiBjeT0iMzciIHJ4PSI2IiByeT0iOSIgaWxsPSIjZmY4MGM4IiBvcGFjaXR5PSIwLjgiLz4KPC9zdmc+Cg=="/>
+
+    <!-- PWA manifest and mobile app capability -->
+    <link rel="manifest" href="/MirianaFranzese_app/manifest.webmanifest">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <style>
         /* Base styles */
         body {
@@ -1142,6 +1147,17 @@
         }
         window.motivationalQuotes = quotes;
       })();
+    </script>
+
+    <!-- Register service worker for PWA -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/MirianaFranzese_app/sw.js', {scope: '/MirianaFranzese_app/'}).catch(function(err) {
+                console.error('ServiceWorker registration failed:', err);
+            });
+        });
+    }
     </script>
         <!-- Sample workout data. In a real app these would come from a database.
              Workouts to do. Each workout may include a weekIndex property which
