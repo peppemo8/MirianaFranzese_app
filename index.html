@@ -1201,6 +1201,36 @@
 
         // Interval id for updating elapsed time display during an active session
         let elapsedIntervalId = null;
+        // Attempt to restore workouts from localStorage. If stored lists exist,
+        // they will override the initial sample values defined above. This
+        // ensures that user‑created workouts and history persist across
+        // sessions.
+        try {
+            const storedToDo = localStorage.getItem('workoutsToDo');
+            if (storedToDo) {
+                workoutsToDo = JSON.parse(storedToDo);
+            }
+            const storedPast = localStorage.getItem('workoutsPast');
+            if (storedPast) {
+                workoutsPast = JSON.parse(storedPast);
+            }
+        } catch (e) {
+            // ignore JSON parse errors and keep defaults
+        }
+
+        /**
+         * Persist the current to‑do and past workout lists to localStorage. Call this
+         * function whenever workoutsToDo or workoutsPast change to ensure that
+         * data remains available across sessions.
+         */
+        function saveWorkouts() {
+            try {
+                localStorage.setItem('workoutsToDo', JSON.stringify(workoutsToDo));
+                localStorage.setItem('workoutsPast', JSON.stringify(workoutsPast));
+            } catch (e) {
+                // ignore storage quota errors
+            }
+        }
         // Load or initialize weight history data
         let weightHistory = {};
         try {
@@ -1638,6 +1668,8 @@
                     workoutsToDo.push({ id: newId, name: name, date: dateStr, weekIndex: i + 1, exercises: exercises });
                 }
                 createWorkoutForm.style.display = 'none';
+                // Persist updated to‑do list
+                saveWorkouts();
                 renderLists();
             } else {
                 alert('Inserisci un nome e almeno un esercizio con set, ripetizioni e recupero.');
@@ -1890,6 +1922,8 @@
                     } catch (e) {}
                     activeWorkoutState = null;
                 }
+                // Persist updated lists after deletion
+                saveWorkouts();
                 renderLists();
             }
         }
@@ -2375,6 +2409,8 @@
             });
             // remove from to-do list
             workoutsToDo = workoutsToDo.filter(w => w.id !== currentWorkout.id);
+            // Persist updated lists
+            saveWorkouts();
             renderLists();
             // hide finish button
             finishBtn.style.display = 'none';
@@ -3073,6 +3109,8 @@
             });
             // Remove from to-do list
             workoutsToDo = workoutsToDo.filter(w => w.id !== currentWorkout.id);
+            // Persist updated lists
+            saveWorkouts();
             renderLists();
             // Speak final message
             speakMale('Piccola Anima complimenti anche oggi sei riuscita a superare i tuoi limiti');
