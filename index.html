@@ -3398,7 +3398,8 @@
       apiKey: "AIzaSyAFQA6iQygC9-auD8BD_SGD1kF_hX-QmE4",
       authDomain: "workoutapp-e33c7.firebaseapp.com",
       projectId: "workoutapp-e33c7",
-      storageBucket: "workoutapp-e33c7.firebasestorage.app",
+        storageBucket: "workoutapp-e33c7.appspot.com",
+
       messagingSenderId: "843541636978",
       appId: "1:843541636978:web:00cee7943d2d7e67141feb",
       measurementId: "G-PLN9H3NLH6"
@@ -3443,7 +3444,7 @@
       try {
         if (remoteData.workoutsToDo) workoutsToDo = remoteData.workoutsToDo;
         if (remoteData.workoutsPast) workoutsPast = remoteData.workoutsPast;
-        if (typeof renderWorkouts === 'function') renderWorkouts();
+        if (typeof renderLists === 'function') renderLists();
         localStorage.setItem('workoutsToDo', JSON.stringify(workoutsToDo));
         localStorage.setItem('workoutsPast', JSON.stringify(workoutsPast));
       } catch (e) {}
