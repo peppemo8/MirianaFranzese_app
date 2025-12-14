@@ -3413,8 +3413,9 @@
   async function saveToRemote() {
     if (!db) return;
     try {
-      const data = {
-        workoutsToDo: typeof workoutsToDo !== 'undefined' ? workoutsToDo : [],
+      
+        const { setDoc, doc } = await import('https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js');                    
+        const data = {        workoutsToDo: typeof workoutsToDo !== 'undefined' ? workoutsToDo : [],
         workoutsPast: typeof workoutsPast !== 'undefined' ? workoutsPast : []
       };
       await setDoc(doc(db, 'workouts', 'userWorkouts'), data);
@@ -3426,9 +3427,10 @@
   async function loadFromRemote() {
     if (!db) return null;
     try {
-      const docRef = doc(db, 'workouts', 'userWorkouts');
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
+      
+        const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js');
+        const docRef = doc(db, 'workouts', 'userWorkouts');
+        const docSnap = await getDoc(docRef);      if (docSnap.exists()) {
         return docSnap.data();
       }
     } catch (error) {
