@@ -1733,6 +1733,45 @@
             }
         });
 
+        // Listen for storage events from other tabs or PWA contexts. When data
+        // such as workouts, weight history, chat messages or nutrition changes
+        // in another context, update the local variables and UI accordingly.
+        window.addEventListener('storage', (event) => {
+            try {
+                if (event.key === 'workoutsToDo') {
+                    const newVal = event.newValue;
+                    workoutsToDo = newVal ? JSON.parse(newVal) : [];
+                    renderLists();
+                } else if (event.key === 'workoutsPast') {
+                    const newVal = event.newValue;
+                    workoutsPast = newVal ? JSON.parse(newVal) : [];
+                    renderLists();
+                } else if (event.key === 'weightHistory') {
+                    const newVal = event.newValue;
+                    weightHistory = newVal ? JSON.parse(newVal) : {};
+                    // Re-render history tab if visible
+                    if (historyListEl && historyListEl.style.display === 'block') {
+                        renderHistoryList();
+                    }
+                } else if (event.key === 'chatMessages') {
+                    const newVal = event.newValue;
+                    chatMessagesData = newVal ? JSON.parse(newVal) : [];
+                    if (chatPageEl && chatPageEl.style.display === 'block') {
+                        loadChatMessages();
+                    }
+                } else if (event.key === 'nutritionData') {
+                    const newVal = event.newValue;
+                    nutritionData = newVal ? JSON.parse(newVal) : {};
+                    // If nutrition page is open, refresh content
+                    if (nutritionPageEl && nutritionPageEl.style.display === 'block') {
+                        showNutritionPage();
+                    }
+                }
+            } catch (e) {
+                // ignore errors parsing JSON or updating UI
+            }
+        });
+
         // Render the lists
         function renderLists() {
             // Clear existing lists
