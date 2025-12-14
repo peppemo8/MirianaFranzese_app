@@ -3383,6 +3383,81 @@
             btnWrapper.appendChild(saveBtn);
             nutritionContentEl.appendChild(btnWrapper);
         }
+   
     </script>
+    <script>
+(function(){
+  let firebaseInitialized = false;
+  let db;
+  async function initFirebase() {
+    if (firebaseInitialized) return;
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js');
+    const { getAnalytics } = await import('https://www.gstatic.com/firebasejs/9.17.1/firebase-analytics.js');
+    const { getFirestore, doc, setDoc, getDoc } = await import('https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js');
+    const firebaseConfig = {
+      apiKey: "AIzaSyAFQA6iQygC9-auD8BD_SGD1kF_hX-QmE4",
+      authDomain: "workoutapp-e33c7.firebaseapp.com",
+      projectId: "workoutapp-e33c7",
+      storageBucket: "workoutapp-e33c7.firebasestorage.app",
+      messagingSenderId: "843541636978",
+      appId: "1:843541636978:web:00cee7943d2d7e67141feb",
+      measurementId: "G-PLN9H3NLH6"
+    };
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    db = getFirestore(app);
+    firebaseInitialized = true;
+  }
+
+  async function saveToRemote() {
+    if (!db) return;
+    try {
+      const data = {
+        workoutsToDo: typeof workoutsToDo !== 'undefined' ? workoutsToDo : [],
+        workoutsPast: typeof workoutsPast !== 'undefined' ? workoutsPast : []
+      };
+      await setDoc(doc(db, 'workouts', 'userWorkouts'), data);
+    } catch (error) {
+      console.error('Errore salvataggio Firestore', error);
+    }
+  }
+
+  async function loadFromRemote() {
+    if (!db) return null;
+    try {
+      const docRef = doc(db, 'workouts', 'userWorkouts');
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        return docSnap.data();
+      }
+    } catch (error) {
+      console.error('Errore caricamento Firestore', error);
+    }
+    return null;
+  }
+
+  window.addEventListener('load', async () => {
+    await initFirebase();
+    const remoteData = await loadFromRemote();
+    if (remoteData) {
+      try {
+        if (remoteData.workoutsToDo) workoutsToDo = remoteData.workoutsToDo;
+        if (remoteData.workoutsPast) workoutsPast = remoteData.workoutsPast;
+        if (typeof renderWorkouts === 'function') renderWorkouts();
+        localStorage.setItem('workoutsToDo', JSON.stringify(workoutsToDo));
+        localStorage.setItem('workoutsPast', JSON.stringify(workoutsPast));
+      } catch (e) {}
+    }
+    if (typeof saveWorkouts === 'function') {
+      const originalSaveWorkouts = saveWorkouts;
+      saveWorkouts = function(...args) {
+        originalSaveWorkouts.apply(this, args);
+        saveToRemote();
+      };
+    }
+  });
+})();
+</script>
+
 </body>
 </html>
