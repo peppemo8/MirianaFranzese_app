@@ -1,5 +1,6 @@
 // Increment the cache version to force browsers to fetch the latest app files.
-const CACHE_NAME = 'miriana-app-v3';
+// Bump the cache version to v4 to ensure browsers pick up the latest changes
+const CACHE_NAME = 'miriana-app-v4';
 const FILES_TO_CACHE = [
   '/MirianaFranzese_app/',
   '/MirianaFranzese_app/index.html',
