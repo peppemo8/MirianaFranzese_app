@@ -1,6 +1,6 @@
 // Service worker for MirianaFranzese_app
 // Update the cache version to ensure browsers always fetch the latest files
-const CACHE_NAME ='miriana-app-v6'';
+const CACHE_NAME  = 'miriana-app-v6';
 
 const FILES_TO_CACHE = [
   '/MirianaFranzese_app/',
