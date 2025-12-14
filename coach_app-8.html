@@ -1,0 +1,3268 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Allenamento App</title>
+    <!-- Import a calligraphic font for the title -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+    <!-- Application icon: black background with a single pink petal. Updated to remove dumbbell. -->
+    <!-- App favicon: a single delicate 3D‑style pink petal on black background -->
+    <!-- Updated app icon: smaller 3D petal on black background -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjMDAwIi8+CiAgPGVsbGlwc2UgY3g9IjMyIiBjeT0iNDIiIHJ4PSIxMCIgcnk9IjE1IiBmaWxsPSIjZmY0ZWI4Ii8+CiAgPGVsbGlwc2UgY3g9IjMyIiBjeT0iMzciIHJ4PSI2IiByeT0iOSIgaWxsPSIjZmY4MGM4IiBvcGFjaXR5PSIwLjgiLz4KPC9zdmc+Cg=="/>
+    <style>
+        /* Base styles */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #000000; /* dark background */
+            color: #ffffff; /* light text */
+        }
+        header {
+            background-color: #0a0a0a;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #222;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 36px;
+            font-family: 'Great Vibes', cursive;
+            color: #ff4081; /* pink accent */
+        }
+
+        /* Tab navigation */
+        .tab-buttons {
+            display: flex;
+            justify-content: center;
+            background-color: #111;
+        }
+        .tab-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #ffffff;
+            background-color: transparent;
+            border-bottom: 2px solid transparent;
+        }
+        .tab-buttons button.active {
+            border-bottom-color: #ff4081; /* pink accent for active tab */
+            color: #ff4081;
+        }
+
+        /* Workout lists */
+        #toDoList, #pastList {
+            padding: 15px;
+        }
+        /* Card style for workouts */
+        .workout-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .workout-item:hover {
+            background-color: #1a1a1a;
+        }
+        .workout-day-label {
+            background-color: #ff4081;
+            color: #000;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .workout-date-week {
+            color: #aaaaaa;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        .workout-body {
+            flex: 1;
+            margin-left: 12px;
+        }
+        .workout-body strong {
+            font-size: 16px;
+        }
+        .workout-body .workout-excount {
+            color: #bbbbbb;
+            font-size: 12px;
+        }
+        .workout-arrow {
+            font-size: 22px;
+            color: #ff4081;
+        }
+
+        /* Detail page */
+        #detail {
+            display: none;
+            padding: 15px;
+        }
+        #backButton {
+            margin-bottom: 10px;
+        }
+        #exerciseList {
+            margin-top: 15px;
+        }
+        .exercise {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #222;
+            padding-bottom: 10px;
+        }
+        .exercise h3 {
+            margin: 0 0 5px 0;
+            color: #ff4081;
+        }
+        .sets-container {
+            margin-top: 5px;
+        }
+        .set-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .set-row span {
+            min-width: 80px;
+        }
+        .set-row input {
+            flex: 1;
+            margin-right: 8px;
+            padding: 6px;
+            background-color: #111;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 4px;
+        }
+        .set-row input:last-child {
+            margin-right: 0;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background-color: #ff4081;
+            color: #ffffff;
+        }
+        .btn-secondary {
+            background-color: #333;
+            color: #ffffff;
+        }
+        .btn-timer {
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        /* Timer & elapsed time display */
+        #restCountdown {
+            margin-top: 10px;
+            font-size: 20px;
+            color: #ff4081;
+        }
+        /* Hide elapsed time display during workout */
+        #elapsedTime {
+            display: none;
+        }
+
+        /* Notes */
+        #notes {
+            width: 100%;
+            background-color: #111;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 8px;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        /* Rest timer interactive controls */
+        .rest-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .btn-rest-adjust {
+            padding: 4px 8px;
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-rest-adjust:hover {
+            background-color: #444;
+        }
+
+        /* Rest overlay (full screen bottom panel) */
+        .rest-overlay {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            /* Use dark background with slight opacity for focus */
+            background-color: rgba(0, 0, 0, 0.95);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            padding: 20px;
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+        }
+        .rest-overlay.active {
+            display: flex;
+        }
+        .rest-overlay-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .rest-overlay-header h4 {
+            margin: 0;
+            color: #ff4081;
+            font-size: 16px;
+        }
+        .rest-overlay-close {
+            background-color: #333;
+            color: #fff;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .rest-overlay-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .rest-overlay .timer-wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .rest-overlay .timer-circle {
+            width: 180px;
+            height: 180px;
+            border: 6px solid #ff4081;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: #ff4081;
+            margin-bottom: 10px;
+        }
+        .rest-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-left: 16px;
+        }
+        .rest-btn {
+            background-color: #ff4081;
+            color: #111;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-size: 16px;
+            min-width: 80px;
+        }
+
+        /* Delete icon for workouts */
+        .workout-delete {
+            font-size: 20px;
+            color: #ff4081;
+            cursor: pointer;
+            margin-left: 8px;
+            display: inline-block;
+        }
+
+        /* Delete button in workout detail */
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #ff4081;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        /* Exercise history page */
+        #exerciseHistoryPage {
+            display: none;
+            padding: 15px;
+        }
+        .exercise-history-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .exercise-history-header h2 {
+            margin: 0;
+            flex-grow: 1;
+            color: #ff4081;
+        }
+        .back-history-btn {
+            background: none;
+            border: none;
+            color: #ff4081;
+            font-size: 22px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .history-table th, .history-table td {
+            border: 1px solid #444;
+            padding: 6px;
+            text-align: left;
+        }
+        .history-table th {
+            background-color: #222;
+            color: #ff4081;
+        }
+        .history-table td {
+            background-color: #111;
+            color: #fff;
+        }
+        .date-section {
+            margin-bottom: 20px;
+        }
+        .date-section h4 {
+            margin: 10px 0;
+            color: #ff4081;
+        }
+
+        /* New exercise entry fields */
+        .exercise-entry textarea {
+            width: 100%;
+            max-width: 100%;
+            min-height: 60px;
+            background-color: #111;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 4px;
+            border-radius: 4px;
+            margin-top: 6px;
+        }
+        .exercise-entry input[type="file"] {
+            color: #fff;
+            margin-top: 4px;
+        }
+
+        /* History rows with input boxes */
+        .history-row {
+            display: flex;
+            align-items: center;
+            margin: 4px 0;
+            gap: 6px;
+        }
+        .history-row small {
+            flex: 1;
+            color: #bbbbbb;
+            font-size: 12px;
+        }
+        .history-row input {
+            width: 50px;
+            padding: 4px;
+            background-color: #222;
+            border: 1px solid #444;
+            color: #ff4081;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        /* Main menu styles */
+        #mainMenu {
+            padding: 15px;
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid #ff4081;
+            margin-right: 15px;
+        }
+        .menu-items {
+            display: flex;
+            flex-direction: column;
+        }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            background-color: #111;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .menu-item:hover {
+            background-color: #1a1a1a;
+        }
+        .menu-icon {
+            font-size: 22px;
+            margin-right: 12px;
+            color: #ff4081;
+        }
+
+        /* Entry page styles */
+        .entry-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 300;
+            overflow: hidden;
+        }
+        .entry-page .enter-btn {
+            background-color: #ff4081;
+            color: #fff;
+            border: none;
+            padding: 14px 28px;
+            font-size: 20px;
+            border-radius: 24px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+    /* Door opening animation for the entry page overlay. When the entry button
+       is clicked, the overlay will shrink and fade out like a door opening. */
+    .entry-page.hide {
+        animation: doorOpen 1s forwards;
+    }
+    @keyframes doorOpen {
+        to {
+            transform: scaleX(0) scaleY(0);
+            opacity: 0;
+        }
+    }
+        .petal-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+        .petal {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background-color: #ff4081;
+            border-radius: 50% 50% 50% 0;
+            opacity: 0.8;
+            transform: rotate(45deg);
+            animation: fall linear infinite;
+        }
+        @keyframes fall {
+            0% {
+                transform: translateX(var(--startX)) translateY(-10vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(var(--endX)) translateY(110vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Page header for subpages */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .page-header button {
+            background: none;
+            border: none;
+            color: #ff4081;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .page-header h3 {
+            flex-grow: 1;
+            text-align: center;
+            margin: 0;
+            color: #ff4081;
+            font-size: 20px;
+        }
+
+        /* Summary page styles */
+        #summaryPage {
+            display: none;
+            padding: 15px;
+        }
+        .rating-group {
+            margin-bottom: 15px;
+        }
+        .rating-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        .rating-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        /* Enlarged rating buttons for better tapping and improved contrast */
+        .rating-buttons button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid #666;
+            background-color: #222;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .rating-buttons button.active {
+            background-color: #ff4081;
+            border-color: #ff4081;
+            color: #000000;
+        }
+        .rating-label {
+            margin-top: 4px;
+            font-size: 12px;
+            color: #bbbbbb;
+        }
+        #summaryPage textarea {
+            width: 100%;
+            min-height: 50px;
+            background-color: #111;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 4px;
+            padding: 6px;
+            margin-top: 4px;
+        }
+
+        /* Chat styles */
+        #chatPage {
+            display: none;
+            height: calc(100vh - 60px);
+            display: flex;
+            flex-direction: column;
+        }
+        #chatMessages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .chat-message {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .chat-message.user {
+            justify-content: flex-end;
+        }
+        .chat-message.coach {
+            justify-content: flex-start;
+        }
+        .chat-bubble {
+            max-width: 70%;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.3;
+        }
+        .chat-message.user .chat-bubble {
+            background-color: #ff4081;
+            color: #111;
+            border-bottom-right-radius: 0;
+        }
+        .chat-message.coach .chat-bubble {
+            background-color: #333;
+            color: #fff;
+            border-bottom-left-radius: 0;
+        }
+
+        /* Chat date and time styling */
+        .chat-start {
+            text-align: center;
+            margin-bottom: 8px;
+            color: #777;
+            font-size: 12px;
+        }
+        .chat-date {
+            text-align: center;
+            margin: 8px 0;
+            color: #888;
+            font-size: 12px;
+        }
+        .chat-time {
+            display: block;
+            text-align: right;
+            font-size: 10px;
+            color: #999;
+            margin-top: 2px;
+        }
+
+        /* Actions for editing or deleting entries in weight history */
+        .history-actions span {
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .history-actions span:hover {
+            color: #ff4081;
+        }
+
+        /* Profile page form styling */
+        #profilePage label {
+            display: block;
+            margin-top: 12px;
+            color: #eee;
+            font-size: 14px;
+        }
+        #profilePage input {
+            width: 100%;
+            background-color: #111;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 4px;
+            box-sizing: border-box;
+        }
+
+        /* Nutrition menu items styled as cards with pink accents */
+        #nutritionMenu {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        #nutritionMenu .nutrition-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 14px 18px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        #nutritionMenu .nutrition-item:hover {
+            background-color: #1a1a1a;
+        }
+        #nutritionMenu .nutrition-item .menu-icon {
+            font-size: 24px;
+            color: #ff4081;
+            margin-right: 16px;
+        }
+        #nutritionMenu .nutrition-item span:last-child {
+            font-size: 16px;
+            color: #ffffff;
+        }
+        #chatInputArea {
+            display: flex;
+            padding: 10px;
+            background-color: #0a0a0a;
+            border-top: 1px solid #222;
+        }
+        #chatMessageInput {
+            flex-grow: 1;
+            padding: 8px;
+            background-color: #111;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 4px;
+        }
+        #sendChatBtn {
+            margin-left: 8px;
+        }
+
+        /* Bottom navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background-color: #0a0a0a;
+            border-top: 1px solid #222;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 10;
+        }
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            color: #888;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .nav-item .nav-icon {
+            display: block;
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+        .nav-item.active {
+            color: #ff4081;
+        }
+
+        /* Create workout form */
+        #createWorkoutBtn {
+            display: block;
+            margin: 15px auto;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #ff4081;
+            color: #ffffff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #createWorkoutForm {
+            display: none;
+            padding: 15px;
+            border-top: 1px solid #222;
+        }
+        #createWorkoutForm h3 {
+            margin-top: 0;
+            color: #ff4081;
+        }
+        #createWorkoutForm input[type="text"],
+        #createWorkoutForm input[type="number"],
+        #createWorkoutForm select {
+            background-color: #111;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 6px;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+        #exerciseInputContainer {
+            margin-top: 10px;
+        }
+        .exercise-entry {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .exercise-entry select {
+            min-width: 200px;
+            margin-bottom: 6px;
+        }
+        .exercise-entry input {
+            width: 80px;
+            margin-bottom: 6px;
+        }
+        .remove-exercise-btn {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Entry page with animated petals and entry button -->
+    <div id="entryPage" class="entry-page">
+        <div class="petal-container"></div>
+        <button id="enterAppBtn" class="enter-btn">Entra</button>
+    </div>
+
+    <!-- Door overlay for motivational quote and transition. Initially hidden, it will display
+         when the user clicks the entry button. Two panels slide open to reveal the app,
+         and the daily quote is shown between them for a few seconds. -->
+    <div id="doorOverlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; z-index:1000; overflow:hidden;">
+        <!-- Two panels form a single pink door. They slide outward to reveal the app. -->
+        <div id="doorLeft" class="door-panel" style="position:absolute; top:0; left:0; width:50%; height:100%; background-color:#ff4081;
+            transition:transform 1s ease;"></div>
+        <div id="doorRight" class="door-panel" style="position:absolute; top:0; right:0; width:50%; height:100%; background-color:#ff4081;
+            transition:transform 1s ease;"></div>
+        <!-- Motivational quote appears centred between the doors -->
+        <div id="quoteMessage" style="position:absolute; top:45%; left:50%; transform:translate(-50%,-50%);
+            color:#fff; font-size:22px; text-align:center; padding:20px; max-width:90%; z-index:2;"></div>
+    </div>
+    <header>
+        <!-- Updated title to reflect the requested app name. Using the imported
+             calligraphic font and pink colour for a delicate signature look. -->
+        <h1>Miriana Franzese</h1>
+    </header>
+    <!-- Main menu: home page with navigation options -->
+    <div id="mainMenu">
+        <div class="profile-header">
+            <!-- Avatar image. Clicking on this image will allow the user to upload a new photo. -->
+            <img id="avatarImg" src="exercise_images/avatar.jpeg" alt="User Avatar" class="avatar" />
+            <!-- Hidden file input for uploading a new avatar. It is triggered when the avatar image is clicked. -->
+            <input type="file" id="avatarUpload" accept="image/*" style="display:none;" />
+            <div class="profile-info">
+                <!-- Display the user name in calligraphic font just below the main header -->
+                <h2 style="margin:0;font-family:'Great Vibes',cursive;color:#ff4081;">Miriana</h2>
+            </div>
+        </div>
+        <div class="menu-items">
+            <button class="menu-item" id="menuWorkouts">
+                <span class="menu-icon">🏋️‍♂️</span>
+                <span>Allenamenti</span>
+            </button>
+            <button class="menu-item" id="menuHistory">
+                <span class="menu-icon">📈</span>
+                <span>Storico pesi</span>
+            </button>
+            <button class="menu-item" id="menuMetrics">
+                <span class="menu-icon">📏</span>
+                <span>Metriche</span>
+            </button>
+            <button class="menu-item" id="menuProgress">
+                <span class="menu-icon">🚀</span>
+                <span>Progressi</span>
+            </button>
+            <button class="menu-item" id="menuNutrition">
+                <span class="menu-icon">🍎</span>
+                <span>Nutrizione</span>
+            </button>
+            <button class="menu-item" id="menuBookings">
+                <span class="menu-icon">📅</span>
+                <span>Prenotazioni</span>
+            </button>
+            <button class="menu-item" id="menuQuestionnaires">
+                <span class="menu-icon">📝</span>
+                <span>Questionari</span>
+            </button>
+            <button class="menu-item" id="menuPurchases">
+                <span class="menu-icon">💼</span>
+                <span>Acquisti</span>
+            </button>
+        </div>
+    </div>
+    <!-- Workouts page: lists of workouts and form -->
+    <div id="workoutsPage" style="display:none;">
+        <div class="page-header">
+            <button id="homeFromWorkouts">← Home</button>
+            <h3>Allenamenti</h3>
+        </div>
+        <div class="tab-buttons">
+            <button id="btnToDo" class="active">Da Fare</button>
+            <button id="btnPast">Passati</button>
+            <button id="btnHistoryTab">Storico pesi</button>
+        </div>
+        <!-- Button to create a new workout -->
+        <button id="createWorkoutBtn">Nuovo allenamento</button>
+        <!-- Lists of workouts and history -->
+        <div id="toDoList"></div>
+        <div id="pastList" style="display:none;"></div>
+        <div id="historyList" style="display:none;"></div>
+        <!-- Form for creating a new workout -->
+        <div id="createWorkoutForm">
+            <h3>Crea nuovo allenamento</h3>
+            <div style="margin-bottom: 8px;">
+                <label for="newWorkoutName">Nome allenamento:</label><br>
+                <input type="text" id="newWorkoutName" placeholder="Nome" />
+            </div>
+            <div style="margin-bottom: 8px;">
+                <label for="newWorkoutWeeks">Durata (settimane):</label><br>
+                <input type="number" id="newWorkoutWeeks" min="1" value="1" />
+            </div>
+            <div style="margin-bottom: 8px;">
+                <label for="newWorkoutDay">Giorno della settimana:</label><br>
+                <select id="newWorkoutDay">
+                    <option value="Monday">Lunedì</option>
+                    <option value="Tuesday">Martedì</option>
+                    <option value="Wednesday">Mercoledì</option>
+                    <option value="Thursday">Giovedì</option>
+                    <option value="Friday">Venerdì</option>
+                    <option value="Saturday">Sabato</option>
+                    <option value="Sunday">Domenica</option>
+                </select>
+            </div>
+            <div id="exerciseInputContainer"></div>
+            <button type="button" id="addExerciseBtn" class="btn btn-secondary" style="margin-bottom: 10px;">Aggiungi esercizio</button>
+            <br>
+            <button type="button" id="saveWorkoutBtn" class="btn btn-primary">Salva allenamento</button>
+            <button type="button" id="cancelWorkoutBtn" class="btn btn-secondary">Annulla</button>
+        </div>
+    </div>
+    <!-- Detail view -->
+    <div id="detail">
+        <button id="backButton" class="btn btn-secondary">← Indietro</button>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+            <h2 id="workoutName" style="margin:0;"></h2>
+            <button id="deleteWorkoutBtn" class="delete-btn" title="Elimina allenamento">🗑️</button>
+        </div>
+        <div id="exerciseList"></div>
+        <!-- Rest timer area (updated dynamically per exercise). It uses the class rest-overlay to become a bottom panel. -->
+        <div id="restArea" class="rest-overlay"></div>
+        <!-- Notes section -->
+        <div style="margin-top: 20px;">
+            <label for="notes">Note:</label><br>
+            <textarea id="notes" rows="3"></textarea>
+        </div>
+        <!-- Start/finish controls -->
+        <div style="margin-top: 20px;">
+            <button id="startBtn" class="btn btn-primary">Inizia allenamento</button>
+            <button id="finishBtn" class="btn btn-primary" style="display:none;">Fine allenamento</button>
+        </div>
+        <div id="elapsedTime"></div>
+    </div>
+
+    <!-- Datalist to provide suggestions for exercise names while allowing manual entry -->
+    <datalist id="exerciseDatalist"></datalist>
+
+    <!-- Exercise specific history page (hidden by default) -->
+    <div id="exerciseHistoryPage">
+        <div class="exercise-history-header">
+            <button type="button" class="back-history-btn" id="exerciseHistoryBack">← Indietro</button>
+            <h2 id="historyExerciseName"></h2>
+        </div>
+        <div id="exerciseHistoryContent"></div>
+    </div>
+
+    <!-- Nutrition page -->
+    <div id="nutritionPage" style="display:none; padding:15px;">
+        <div class="page-header">
+            <button id="homeFromNutrition">← Home</button>
+            <h3>Nutrizione</h3>
+        </div>
+        <div id="nutritionMenu" class="menu-items">
+            <button class="menu-item nutrition-item" data-target="mealPlans"><span class="menu-icon">🍽️</span><span>Piani alimentari</span></button>
+            <button class="menu-item nutrition-item" data-target="macros"><span class="menu-icon">🥗</span><span>Macronutrienti</span></button>
+            <button class="menu-item nutrition-item" data-target="advices"><span class="menu-icon">📋</span><span>Consigli nutrizionali</span></button>
+            <button class="menu-item nutrition-item" data-target="supplements"><span class="menu-icon">💊</span><span>Integrazioni</span></button>
+            <button class="menu-item nutrition-item" data-target="shopping"><span class="menu-icon">🛒</span><span>Lista della spesa</span></button>
+        </div>
+        <div id="nutritionContent" style="margin-top:15px;"></div>
+    </div>
+
+    <!-- Chat page -->
+    <!-- Chat page is hidden by default and shown only when the chat button is selected -->
+    <div id="chatPage" style="display:none;">
+        <div class="page-header" style="padding:15px;">
+            <button id="homeFromChat">← Home</button>
+            <h3>Giuseppe Morra Coach</h3>
+        </div>
+        <div id="chatMessages"></div>
+        <div id="chatInputArea">
+            <input id="chatMessageInput" type="text" placeholder="Scrivi un messaggio..." />
+            <button id="sendChatBtn" class="btn btn-primary">Invia</button>
+        </div>
+    </div>
+
+    <!-- Workout summary page -->
+    <div id="summaryPage">
+        <div class="page-header" style="display:flex; align-items:center; gap:10px;">
+            <button id="summaryCancelBtn">← Indietro</button>
+            <h3 style="flex:1; text-align:center;">Riepilogo allenamento</h3>
+            <!-- Home button to return directly to the main menu from summary page -->
+            <button id="summaryHomeBtn" class="btn btn-secondary" style="margin-left:auto;">🏠 Home</button>
+        </div>
+        <p><strong>Tempo allenamento:</strong> <span id="summaryDuration">00:00</span></p>
+        <div class="rating-group">
+            <label>Quanto è stato difficile l'allenamento?</label>
+            <div class="rating-buttons" id="difficultyRating"></div>
+            <div id="difficultyLabel" class="rating-label"></div>
+        </div>
+        <div class="rating-group">
+            <label>Fatica</label>
+            <div class="rating-buttons" id="fatigueRating"></div>
+            <div id="fatigueLabel" class="rating-label"></div>
+        </div>
+        <div class="rating-group">
+            <label>Dolore alle Articolazioni</label>
+            <div class="rating-buttons" id="painRating"></div>
+            <div id="painLabel" class="rating-label"></div>
+        </div>
+        <div class="rating-group">
+            <label>Pump post‑allenamento</label>
+            <div class="rating-buttons" id="pumpRating"></div>
+            <div id="pumpLabel" class="rating-label"></div>
+        </div>
+        <div style="margin-bottom:12px;">
+            <label>Note dolori articolari</label>
+            <textarea id="summaryJointNotes" placeholder="Note dolori articolari"></textarea>
+        </div>
+        <div style="margin-bottom:12px;">
+            <label>Note aggiuntive</label>
+            <textarea id="summaryAdditionalNotes" placeholder="Note aggiuntive"></textarea>
+        </div>
+        <div style="display:flex; gap:12px;">
+            <button id="summaryCancelBtn2" class="btn btn-secondary" style="flex:1;">Annulla ✕</button>
+            <button id="summaryCompleteBtn" class="btn btn-primary" style="flex:1;">Completato ✔</button>
+        </div>
+    </div>
+
+    <!-- Past workout detail page -->
+    <div id="pastWorkoutPage" style="display:none; padding:15px;">
+        <div class="page-header">
+            <button id="pastDetailBackBtn">← Indietro</button>
+            <h3 id="pastWorkoutName"></h3>
+            <!-- Optional home button to quickly return to the main menu from past workout -->
+            <button id="pastDetailHomeBtn" style="margin-left:auto;" class="btn btn-secondary">🏠 Home</button>
+        </div>
+        <p id="pastWorkoutDate"></p>
+        <p><strong>Durata:</strong> <span id="pastWorkoutDuration"></span></p>
+        <div id="pastExercisesContainer"></div>
+        <div id="pastSummaryContainer" style="margin-top:20px;"></div>
+    </div>
+
+    <!-- Profile page -->
+    <div id="profilePage" style="display:none; padding:15px;">
+        <div class="page-header">
+            <button id="homeFromProfile">← Home</button>
+            <h3>Profilo</h3>
+        </div>
+        <div class="profile-form">
+            <label for="profileFirstName">Nome</label>
+            <input type="text" id="profileFirstName" placeholder="Nome" />
+            <label for="profileLastName">Cognome</label>
+            <input type="text" id="profileLastName" placeholder="Cognome" />
+            <label for="profileEmail">Email</label>
+            <input type="email" id="profileEmail" placeholder="Email" />
+            <label for="profilePassword">Password</label>
+            <input type="password" id="profilePassword" placeholder="Password" />
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button id="cancelProfileBtn" class="btn btn-secondary" style="flex:1;">Annulla</button>
+                <button id="saveProfileBtn" class="btn btn-primary" style="flex:1;">Salva</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom navigation bar -->
+    <div class="bottom-nav">
+        <div class="nav-item" id="navProfile">
+            <span class="nav-icon">👤</span>
+            <span>Profilo</span>
+        </div>
+        <div class="nav-item" id="navReminders">
+            <span class="nav-icon">⏰</span>
+            <span>Promemoria</span>
+        </div>
+        <div class="nav-item active" id="navHome">
+            <span class="nav-icon">🏠</span>
+            <span>Home</span>
+        </div>
+        <div class="nav-item" id="navChat">
+            <span class="nav-icon">💬</span>
+            <span>Chat</span>
+        </div>
+        <div class="nav-item" id="navNotifications">
+            <span class="nav-icon">🔔</span>
+            <span>Notifiche</span>
+        </div>
+    </div>
+    <!-- Generate 365 motivational quotes dynamically. This script combines several
+         phrase fragments to produce a unique inspirational message for each day of
+         the year. The resulting array is stored on window.motivationalQuotes so
+         that getDailyQuote() can always access a valid quote. -->
+    <script>
+      // Generate an array of 365 motivational quotes. Each quote is built
+      // systematically from four parts: an intro, a verb phrase, an object and
+      // an ending. Cycling through these parts ensures a diverse yet concise
+      // collection of daily phrases.
+      (function() {
+        const intros = [
+          "Ricorda che",
+          "Ogni sfida",
+          "Quando ti senti",
+          "Se la strada sembra",
+          "In ogni passo"
+        ];
+        const verbs = [
+          "è un'opportunità",
+          "ti rende più forte",
+          "ti insegna",
+          "svela la tua forza interiore",
+          "nutre la tua luce"
+        ];
+        const objects = [
+          "per crescere",
+          "per evolvere",
+          "per risplendere",
+          "per scoprire chi sei",
+          "per alimentare i tuoi sogni"
+        ];
+        const endings = [
+          "continua a credere in te stessa.",
+          "non smettere mai di lottare.",
+          "tu meriti di essere felice.",
+          "la tua determinazione è la chiave.",
+          "sei nata per brillare."
+        ];
+        const quotes = [];
+        for (let i = 0; i < 365; i++) {
+          let idx = i;
+          const part1 = intros[idx % intros.length];
+          idx = Math.floor(idx / intros.length);
+          const part2 = verbs[idx % verbs.length];
+          idx = Math.floor(idx / verbs.length);
+          const part3 = objects[idx % objects.length];
+          idx = Math.floor(idx / objects.length);
+          const part4 = endings[idx % endings.length];
+          quotes.push(`${part1} ${part2} ${part3}, ${part4}`);
+        }
+        window.motivationalQuotes = quotes;
+      })();
+    </script>
+        <!-- Sample workout data. In a real app these would come from a database.
+             Workouts to do. Each workout may include a weekIndex property which
+             indicates its position in a multi‑week program. When creating
+             repeated workouts the weekIndex starts at 1 and increments up to
+             the specified number of weeks. If undefined the ISO week number
+             will be displayed. -->
+        <script>
+        let workoutsToDo = [
+            {
+                id: 1,
+                name: 'Gambe & Petto',
+                date: '2025-11-21',
+                weekIndex: 1,
+                exercises: [
+                    { name: 'Leg extension', sets: 3, reps: 12, rest: 90 },
+                    { name: 'Panca piana', sets: 3, reps: 10, rest: 60 }
+                ]
+            },
+            {
+                id: 2,
+                name: 'Schiena & Spalle',
+                date: '2025-11-22',
+                weekIndex: 1,
+                exercises: [
+                    { name: 'Pull up', sets: 4, reps: 8, rest: 90 },
+                    { name: 'Military press', sets: 3, reps: 10, rest: 60 }
+                ]
+            }
+        ];
+        let workoutsPast = [];
+        let currentWorkout = null;
+        let startTime = null;
+        let restTimerId = null;
+
+        // State for the currently active workout, persisted to localStorage. This
+        // object holds the workout id, start time, inputs (weight/reps), rest
+        // countdown end timestamp and notes. It is declared here so that
+        // references to activeWorkoutState are defined.
+        let activeWorkoutState = null;
+
+        // Interval id for updating elapsed time display during an active session
+        let elapsedIntervalId = null;
+        // Load or initialize weight history data
+        let weightHistory = {};
+        try {
+            const stored = localStorage.getItem('weightHistory');
+            if (stored) {
+                weightHistory = JSON.parse(stored);
+            }
+        } catch (e) {
+            weightHistory = {};
+        }
+
+        // List of available exercises in English. These names come from a variety of muscle groups
+        // such as chest, back, shoulders, arms, core and legs【407029498424298†L17-L31】【407029498424298†L34-L57】.
+        const exerciseNames = [
+            // Chest
+            'Barbell Bench Press', 'Incline Dumbbell Bench Press', 'Pec Deck', 'Cable Crossover',
+            'Incline Barbell Bench Press', 'Dumbbell Bench Press', 'Dumbbell Fly', 'Incline Dumbbell Fly',
+            'Chest Press Machine', 'Barbell Declined Bench Press', 'Dumbbell Declined Bench Press', 'Push Ups',
+            // Back
+            'Dumbbell Bent-Over Row (Single Arm)', 'Wide-Grip Pulldown', 'Seated Cable Row', 'Close-Grip Pulldown',
+            'Barbell Row', 'Behind-Neck Pulldown', 'Reverse-Grip Pulldown', 'Rope Pulldown', 'T-Bar Rows',
+            'Barbell Bent Over Rows Supinated Grip', 'Pull Up', 'Behind the Neck Pull Up', 'Pull Up with a Supinated Grip',
+            'Straight Arm Lat Pulldown', 'Dumbbell Bent Over Rows', 'Dumbbell Pullover', 'Barbell Pullover',
+            'Barbell Deadlift', 'Barbell Sumo Deadlift', 'Trap Bar Deadlift', 'Dumbbell Deadlift', 'Barbell Shrug', 'Dumbbell Shrugs',
+            // Shoulders
+            'Dumbbell Shoulder Press', 'Dumbbell Lateral Raise', 'Dumbbell Front Raise', 'High Cable Rear Delt Fly',
+            'Smith Machine Shoulder Press', 'Barbell Upright Row', 'Bent-Over Lateral Raise', 'Cable One-Arm Lateral Raise',
+            'Dumbbell Push Press', 'Barbell Push Press', 'Single-Arm Cable Front Raise', 'Barbell Front Raise',
+            'Seated Barbell Shoulder Press', 'Seated Behind the Neck Barbell Shoulder Press', 'Standing Barbell Shoulder Press',
+            'Standing Behind the Neck Barbell Shoulder Press', 'Alternate Dumbbell Front Raise Neutral Grip',
+            'One-Arm Low-Pulley Front Raise Neutral Grip', 'Two-Handed Dumbbell Front Raise',
+            // Biceps
+            'Barbell Curl', 'Alternating Dumbbell Curl', 'Rope Cable Curl', 'EZ Barbell Curl',
+            'EZ Barbell Preacher Curl', 'Hammer Curl', 'Incline Dumbbell Curl', 'Dumbbell Concentration Curl',
+            'Single-Arm Low Pulley Cable Curl', 'Straight Bar Low Pulley Cable Curl', 'Standing High Pulley Cable Curl',
+            'Seated Barbell Wrist Curl', 'Seated Barbell Wrist Extension', 'Reverse Barbell Curl',
+            // Triceps
+            'Lying Triceps Extension', 'Triceps Pressdown', 'Cable Rope Pushdown', 'Dumbbell Overhead Triceps Extension',
+            'Close Grip Bench Press', 'Kickback', 'Reverse Grip Cable Triceps Extension with Barbell',
+            'Single-Arm Cable Triceps Extension', 'Single-Arm Cable Triceps Extension with Supinated Grip',
+            'Lying Dumbbell Triceps Extension', 'Seated Barbell French Press', 'Bench Dips', 'Parallel Dip Bar',
+            // Abdominals
+            'Crunch', 'Oblique Crunch', 'Crunch Machine', 'Rope Ab Pulldown', 'Plank', 'Hanging Leg Raise',
+            'Bent Knee Reverse Crunch', 'Long Arm Crunch', 'Plank Get Ups',
+            // Legs
+            'Squat', 'Leg Press', 'Leg Extension', 'Lunge', 'Lying Leg Curl', 'Hack Squat', 'Seated Leg Curl',
+            'Single Leg Extension', 'Front Squat', 'Dumbbell Stiff-Leg Deadlift', 'Barbell Stiff-Leg Deadlift',
+            'Dumbbell Goblet Squat', 'Knee Tuck Jumps', 'Burpees', 'Bodyweight Squat', '1.5 Rep Bodyweight Squats',
+            'Medicine Ball Squat', 'Barbell Bulgarian Split Squat', 'Bodyweight Bulgarian Split Squat', 'Mini-Band Air Squat',
+            'Jump Squat', 'Wall Sit', 'Medicine Ball Deadlift', 'Single Leg Bodyweight Deadlift',
+            'Kettlebell Sumo Deadlift', 'Good Morning', 'Bodyweight Glute Bridge', 'Single Leg Glute Bridge',
+            // Italian translations of common exercises to assist users who prefer Italian names
+            'Panca piana', 'Distensioni su panca inclinata', 'Distensioni su panca declinata', 'Croci con manubri',
+            'Rematore con manubrio', 'Trazioni alla sbarra', 'Tirate al cavo', 'Squat', 'Affondi', 'Stacchi da terra',
+            'Alzate laterali', 'Curl con bilanciere', 'Curl con manubri', 'Estensioni tricipiti', 'Spinte militari',
+            'Crunch', 'Plank', 'Pressa per le gambe', 'Leg extension', 'Leg curl'
+        ];
+
+        /**
+         * Instruction texts for select exercises. These descriptions are based on reliable
+         * exercise guidelines, such as positioning, motion and breathing cues. For example,
+         * instructions for the leg extension exercise describe setting up the machine so
+         * the pad is at the top of your lower legs at the ankles with knees at 90 degrees,
+         * lifting the weight until legs are almost straight without locking the knees, and
+         * lowering back to the starting position as explained by fitness resources【387407584184340†L175-L187】.
+         */
+        const exerciseInstructions = {
+            'Leg Extension': 'Set up the leg extension machine so the pad is at the top of your lower legs at the ankles with your knees at 90 degrees. Lift the weight while exhaling until your legs are almost straight but do not lock your knees. Keep your back against the backrest. Slowly lower the weight back to the starting position and repeat for the prescribed number of repetitions.',
+            'Barbell Bench Press': 'Lie on a flat bench with feet flat on the floor. Grip the barbell slightly wider than shoulder-width. Lower the bar to your chest while inhaling, then press it back up while exhaling. Keep your back flat against the bench and elbows under the bar.',
+            'Squat': 'Stand with feet shoulder-width apart. Keep your chest up and back straight. Bend your knees and hips to lower your body until your thighs are parallel to the floor. Push through your heels to return to the starting position.'
+            // Additional exercise instructions can be added here
+        };
+
+        // Populate datalist for exercise suggestions. This allows manual text entry while still offering suggestions.
+        const datalistEl = document.getElementById('exerciseDatalist');
+        if (datalistEl) {
+            exerciseNames.forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                datalistEl.appendChild(opt);
+            });
+        }
+
+        /**
+         * Compute ISO 8601 week number for a given date. Weeks start on Monday and the first week
+         * of the year is the one with the first Thursday. This helper is used to label
+         * workouts with week numbers like in the reference UI.
+         * @param {Date} d
+         * @returns {number}
+         */
+        function getISOWeek(d) {
+            const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            // ISO week date weeks start on Monday, so make Thursday the new day 3
+            const dayNum = date.getUTCDay() === 0 ? 7 : date.getUTCDay();
+            // Set the target to the Thursday of this week
+            date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+            // Calculate week number
+            return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+        }
+
+        /**
+         * Speak a message using a male Italian voice if available. Falls back to alert if speech
+         * synthesis fails. Attempts to select a male-sounding voice by name or gender keywords.
+         * @param {string} text
+         */
+        function speakMale(text) {
+            try {
+                const utter = new SpeechSynthesisUtterance(text);
+                utter.lang = 'it-IT';
+                const voices = speechSynthesis.getVoices();
+                // Try to select a male Italian voice
+                let selected = null;
+                if (voices && voices.length) {
+                    selected = voices.find(v => v.lang && v.lang.startsWith('it') && /male|maschio|luca|riccardo|oscar|paolo|francesco|giovanni/i.test(v.name));
+                }
+                if (selected) {
+                    utter.voice = selected;
+                }
+                speechSynthesis.speak(utter);
+            } catch (e) {
+                alert(text);
+            }
+        }
+
+
+        // DOM elements
+        const btnToDo = document.getElementById('btnToDo');
+        const btnPast = document.getElementById('btnPast');
+        const toDoListDiv = document.getElementById('toDoList');
+        const pastListDiv = document.getElementById('pastList');
+        // Pages
+        const workoutsPageDiv = document.getElementById('workoutsPage');
+        const mainMenuDiv = document.getElementById('mainMenu');
+        const detailDiv = document.getElementById('detail');
+        const backButton = document.getElementById('backButton');
+        const workoutNameEl = document.getElementById('workoutName');
+        const exerciseListEl = document.getElementById('exerciseList');
+        const restAreaEl = document.getElementById('restArea');
+        const notesEl = document.getElementById('notes');
+        const startBtn = document.getElementById('startBtn');
+        const finishBtn = document.getElementById('finishBtn');
+        const elapsedTimeEl = document.getElementById('elapsedTime');
+
+        // Exercise history page elements
+        const exerciseHistoryPage = document.getElementById('exerciseHistoryPage');
+        const exerciseHistoryBack = document.getElementById('exerciseHistoryBack');
+        const historyExerciseNameEl = document.getElementById('historyExerciseName');
+        const exerciseHistoryContentEl = document.getElementById('exerciseHistoryContent');
+
+        // Delete workout button in detail view
+        const deleteWorkoutBtn = document.getElementById('deleteWorkoutBtn');
+
+        // Elements for creating a new workout
+        const createWorkoutBtn = document.getElementById('createWorkoutBtn');
+        const createWorkoutForm = document.getElementById('createWorkoutForm');
+        const addExerciseBtn = document.getElementById('addExerciseBtn');
+        const saveWorkoutBtn = document.getElementById('saveWorkoutBtn');
+        const cancelWorkoutBtn = document.getElementById('cancelWorkoutBtn');
+        const newWorkoutNameInput = document.getElementById('newWorkoutName');
+        const exerciseInputContainer = document.getElementById('exerciseInputContainer');
+
+        // Additional inputs for new workout
+        const newWorkoutWeeksInput = document.getElementById('newWorkoutWeeks');
+        const newWorkoutDaySelect = document.getElementById('newWorkoutDay');
+
+        // History tab elements
+        const btnHistoryTab = document.getElementById('btnHistoryTab');
+        const historyListEl = document.getElementById('historyList');
+
+        // Bottom navigation elements
+        const navProfile = document.getElementById('navProfile');
+        const navReminders = document.getElementById('navReminders');
+        const navHome = document.getElementById('navHome');
+        const navChat = document.getElementById('navChat');
+        const navNotifications = document.getElementById('navNotifications');
+
+        // Main menu buttons
+        const menuWorkouts = document.getElementById('menuWorkouts');
+        const menuHistory = document.getElementById('menuHistory');
+        const menuMetrics = document.getElementById('menuMetrics');
+        const menuProgress = document.getElementById('menuProgress');
+        const menuNutrition = document.getElementById('menuNutrition');
+        const menuBookings = document.getElementById('menuBookings');
+        const menuQuestionnaires = document.getElementById('menuQuestionnaires');
+        const menuPurchases = document.getElementById('menuPurchases');
+
+        // Bottom navigation bar element
+        const bottomNav = document.querySelector('.bottom-nav');
+
+        // Entry page, nutrition, chat, summary and past detail elements
+        const entryPageEl = document.getElementById('entryPage');
+        const enterAppBtnEl = document.getElementById('enterAppBtn');
+        const nutritionPageEl = document.getElementById('nutritionPage');
+        const homeFromNutritionBtn = document.getElementById('homeFromNutrition');
+        const nutritionMenuEl = document.getElementById('nutritionMenu');
+        const nutritionContentEl = document.getElementById('nutritionContent');
+        const chatPageEl = document.getElementById('chatPage');
+        const homeFromChatBtn = document.getElementById('homeFromChat');
+        const chatMessagesEl = document.getElementById('chatMessages');
+        const chatMessageInputEl = document.getElementById('chatMessageInput');
+
+        // Door overlay elements for displaying daily motivational quotes
+        const doorOverlay = document.getElementById('doorOverlay');
+        const doorLeft = document.getElementById('doorLeft');
+        const doorRight = document.getElementById('doorRight');
+        const quoteMessageEl = document.getElementById('quoteMessage');
+        const sendChatBtnEl = document.getElementById('sendChatBtn');
+        const summaryPageEl = document.getElementById('summaryPage');
+        const summaryDurationEl = document.getElementById('summaryDuration');
+        const diffRatingEl = document.getElementById('difficultyRating');
+        const fatRatingEl = document.getElementById('fatigueRating');
+        const painRatingEl = document.getElementById('painRating');
+        const pumpRatingEl = document.getElementById('pumpRating');
+        const diffLabelEl = document.getElementById('difficultyLabel');
+        const fatLabelEl = document.getElementById('fatigueLabel');
+        const painLabelEl = document.getElementById('painLabel');
+        const pumpLabelEl = document.getElementById('pumpLabel');
+        const jointNotesEl = document.getElementById('summaryJointNotes');
+        const additionalNotesEl = document.getElementById('summaryAdditionalNotes');
+        const summaryCancelBtnEl = document.getElementById('summaryCancelBtn');
+        const summaryCancelBtnEl2 = document.getElementById('summaryCancelBtn2');
+        const summaryCompleteBtnEl = document.getElementById('summaryCompleteBtn');
+        const summaryHomeBtnEl = document.getElementById('summaryHomeBtn');
+        const pastWorkoutPageEl = document.getElementById('pastWorkoutPage');
+        const pastWorkoutNameElement = document.getElementById('pastWorkoutName');
+        const pastWorkoutDateElement = document.getElementById('pastWorkoutDate');
+        const pastWorkoutDurationElement = document.getElementById('pastWorkoutDuration');
+        const pastExercisesContainerEl = document.getElementById('pastExercisesContainer');
+        const pastSummaryContainerEl = document.getElementById('pastSummaryContainer');
+        const pastDetailBackBtnEl = document.getElementById('pastDetailBackBtn');
+        // Profile page elements
+        const profilePageEl = document.getElementById('profilePage');
+        const homeFromProfileBtn = document.getElementById('homeFromProfile');
+        const profileFirstNameInput = document.getElementById('profileFirstName');
+        const profileLastNameInput = document.getElementById('profileLastName');
+        const profileEmailInput = document.getElementById('profileEmail');
+        const profilePasswordInput = document.getElementById('profilePassword');
+        const cancelProfileBtn = document.getElementById('cancelProfileBtn');
+        const saveProfileBtn = document.getElementById('saveProfileBtn');
+
+        // Avatar elements: image and hidden upload input
+        const avatarImgEl = document.getElementById('avatarImg');
+        const avatarUploadEl = document.getElementById('avatarUpload');
+
+        // --- Data persistence for nutrition and chat ---
+        let nutritionData = {};
+        try {
+            const storedNut = localStorage.getItem('nutritionData');
+            if (storedNut) nutritionData = JSON.parse(storedNut);
+        } catch (err) {
+            nutritionData = {};
+        }
+        let chatMessagesData = [];
+        try {
+            const storedChat = localStorage.getItem('chatMessages');
+            if (storedChat) chatMessagesData = JSON.parse(storedChat);
+        } catch (err) {
+            chatMessagesData = [];
+        }
+
+        // Load user profile from localStorage
+        let userProfile = {};
+        try {
+            const storedProf = localStorage.getItem('userProfile');
+            if (storedProf) userProfile = JSON.parse(storedProf);
+        } catch (err) {
+            userProfile = {};
+        }
+
+        // Load stored avatar image if present in localStorage
+        try {
+            const storedAvatar = localStorage.getItem('userAvatar');
+            if (storedAvatar && avatarImgEl) {
+                avatarImgEl.src = storedAvatar;
+            }
+        } catch (e) {}
+
+        // Event listeners for create workout
+        createWorkoutBtn.addEventListener('click', () => {
+            // Reset form
+            newWorkoutNameInput.value = '';
+            exerciseInputContainer.innerHTML = '';
+            addExerciseEntry();
+            // Show form and hide lists (optional)
+            createWorkoutForm.style.display = 'block';
+        });
+        addExerciseBtn.addEventListener('click', () => {
+            addExerciseEntry();
+        });
+        cancelWorkoutBtn.addEventListener('click', () => {
+            createWorkoutForm.style.display = 'none';
+        });
+        saveWorkoutBtn.addEventListener('click', () => {
+            saveNewWorkout();
+        });
+
+        /**
+         * Add an exercise entry row to the form. Each row allows selecting an exercise
+         * and specifying sets, reps and rest time. A small remove button is also added
+         * to allow deletion of that entry.
+         */
+        function addExerciseEntry() {
+            const entryDiv = document.createElement('div');
+            entryDiv.className = 'exercise-entry';
+            // Input for exercise name with datalist suggestions
+            const exInput = document.createElement('input');
+            exInput.type = 'text';
+            // Use datalist for suggestions while allowing custom names
+            exInput.setAttribute('list', 'exerciseDatalist');
+            exInput.placeholder = 'Esercizio';
+            exInput.className = 'exercise-name-input';
+            // Input for sets
+            const setsInput = document.createElement('input');
+            setsInput.type = 'number';
+            setsInput.min = '1';
+            setsInput.placeholder = 'Sets';
+            setsInput.className = 'setsInput';
+            // Input for reps
+            const repsInput = document.createElement('input');
+            repsInput.type = 'number';
+            repsInput.min = '1';
+            repsInput.placeholder = 'Reps';
+            repsInput.className = 'repsInput';
+            // Input for rest time (seconds)
+            const restInput = document.createElement('input');
+            restInput.type = 'number';
+            restInput.min = '0';
+            restInput.placeholder = 'Rest (s)';
+            restInput.className = 'restInput';
+            // Textarea for execution description (optional)
+            const descTextarea = document.createElement('textarea');
+            descTextarea.maxLength = 500;
+            descTextarea.placeholder = 'Esecuzione (max 500 caratteri)';
+            // File input for image or video (optional)
+            const mediaInput = document.createElement('input');
+            mediaInput.type = 'file';
+            mediaInput.accept = 'image/*,video/*';
+            mediaInput.className = 'mediaInput';
+            // Remove button
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.textContent = '✕';
+            removeBtn.className = 'remove-exercise-btn';
+            removeBtn.addEventListener('click', () => {
+                exerciseInputContainer.removeChild(entryDiv);
+            });
+            // Append elements
+            entryDiv.appendChild(exInput);
+            entryDiv.appendChild(setsInput);
+            entryDiv.appendChild(repsInput);
+            entryDiv.appendChild(restInput);
+            // Append new inputs under a full-width row
+            entryDiv.appendChild(descTextarea);
+            entryDiv.appendChild(mediaInput);
+            entryDiv.appendChild(removeBtn);
+            exerciseInputContainer.appendChild(entryDiv);
+        }
+
+        /**
+         * Saves a new workout based on the input form. Requires a name and at least one exercise
+         * with valid sets, reps and rest values. Once saved, the workout is added to the list
+         * of workouts to do and the list is re-rendered.
+         */
+        async function saveNewWorkout() {
+            const name = newWorkoutNameInput.value.trim();
+            const entries = Array.from(exerciseInputContainer.getElementsByClassName('exercise-entry'));
+            // Read each exercise entry asynchronously to handle media uploads
+            const entryPromises = entries.map(entry => {
+                const exName = entry.querySelector('.exercise-name-input')?.value.trim();
+                const setsVal = parseInt(entry.querySelector('.setsInput').value);
+                const repsVal = parseInt(entry.querySelector('.repsInput').value);
+                const restVal = parseInt(entry.querySelector('.restInput').value);
+                const descVal = entry.querySelector('textarea')?.value.trim() || '';
+                const mediaInput = entry.querySelector('.mediaInput');
+                if (!exName || isNaN(setsVal) || isNaN(repsVal) || isNaN(restVal)) {
+                    return Promise.resolve(null);
+                }
+                // If a media file is selected, read it as a Data URL; otherwise resolve immediately
+                return new Promise(resolve => {
+                    if (mediaInput && mediaInput.files && mediaInput.files[0]) {
+                        const file = mediaInput.files[0];
+                        const reader = new FileReader();
+                        reader.onload = e => {
+                            resolve({ name: exName, sets: setsVal, reps: repsVal, rest: restVal, execDesc: descVal, media: e.target.result });
+                        };
+                        reader.onerror = () => {
+                            resolve({ name: exName, sets: setsVal, reps: repsVal, rest: restVal, execDesc: descVal, media: null });
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        resolve({ name: exName, sets: setsVal, reps: repsVal, rest: restVal, execDesc: descVal, media: null });
+                    }
+                });
+            });
+            const exerciseResults = await Promise.all(entryPromises);
+            const exercises = exerciseResults.filter(Boolean);
+            if (name && exercises.length > 0) {
+                /*
+                 * Determine on which dates this workout should be repeated. The user
+                 * specifies how many weeks and on which day of the week the routine
+                 * should be scheduled. We compute the next occurrence of the chosen
+                 * day starting from today, then create one workout entry per week.
+                 */
+                const weeks = parseInt(newWorkoutWeeksInput.value) || 1;
+                const dayOfWeek = newWorkoutDaySelect.value || '';
+                // Helper to get the index of a weekday (0=Sunday, 1=Monday, ...)
+                function getDayIndex(dayName) {
+                    const days = {
+                        'Sunday': 0,
+                        'Monday': 1,
+                        'Tuesday': 2,
+                        'Wednesday': 3,
+                        'Thursday': 4,
+                        'Friday': 5,
+                        'Saturday': 6
+                    };
+                    return days[dayName];
+                }
+                // Find the next date matching the selected weekday
+                const todayDate = new Date();
+                const targetDayIndex = getDayIndex(dayOfWeek);
+                // If no valid day is selected, default to today
+                let nextDate = new Date(todayDate);
+                if (!isNaN(targetDayIndex)) {
+                    const diff = (targetDayIndex + 7 - todayDate.getDay()) % 7;
+                    nextDate.setDate(todayDate.getDate() + diff);
+                }
+                // Create repeated workouts for each week and assign weekIndex
+                for (let i = 0; i < weeks; i++) {
+                    const wDate = new Date(nextDate);
+                    wDate.setDate(nextDate.getDate() + i * 7);
+                    const dateStr = wDate.toISOString().slice(0, 10);
+                    const newId = Date.now() + i; // simple unique id
+                    workoutsToDo.push({ id: newId, name: name, date: dateStr, weekIndex: i + 1, exercises: exercises });
+                }
+                createWorkoutForm.style.display = 'none';
+                renderLists();
+            } else {
+                alert('Inserisci un nome e almeno un esercizio con set, ripetizioni e recupero.');
+            }
+        }
+
+        // Initialize event listeners
+        btnToDo.addEventListener('click', () => {
+            btnToDo.classList.add('active');
+            btnPast.classList.remove('active');
+            btnHistoryTab.classList.remove('active');
+            toDoListDiv.style.display = 'block';
+            pastListDiv.style.display = 'none';
+            historyListEl.style.display = 'none';
+        });
+        btnPast.addEventListener('click', () => {
+            btnPast.classList.add('active');
+            btnToDo.classList.remove('active');
+            btnHistoryTab.classList.remove('active');
+            pastListDiv.style.display = 'block';
+            toDoListDiv.style.display = 'none';
+            historyListEl.style.display = 'none';
+        });
+        // Show weight history when the corresponding tab is clicked
+        btnHistoryTab.addEventListener('click', () => {
+            btnHistoryTab.classList.add('active');
+            btnToDo.classList.remove('active');
+            btnPast.classList.remove('active');
+            toDoListDiv.style.display = 'none';
+            pastListDiv.style.display = 'none';
+            historyListEl.style.display = 'block';
+            renderHistoryList();
+        });
+        backButton.addEventListener('click', () => {
+            // go back to workouts page
+            detailDiv.style.display = 'none';
+            // Use function to ensure proper nav visibility
+            showWorkoutsPage();
+            // cleanup any running rest timer
+            clearInterval(restTimerId);
+            restAreaEl.innerHTML = '';
+            elapsedTimeEl.textContent = '';
+        });
+        startBtn.addEventListener('click', () => {
+            startTraining();
+        });
+        finishBtn.addEventListener('click', () => {
+            // Show summary instead of immediately finishing
+            showSummaryPage();
+        });
+
+        // Persist notes input during active workouts
+        notesEl.addEventListener('input', () => {
+            if (activeWorkoutState && currentWorkout && currentWorkout.id === activeWorkoutState.id) {
+                activeWorkoutState.notes = notesEl.value;
+                try {
+                    localStorage.setItem('activeWorkout', JSON.stringify(activeWorkoutState));
+                } catch (e) {
+                    // ignore storage errors
+                }
+            }
+        });
+
+        // Render the lists
+        function renderLists() {
+            // Clear existing lists
+            toDoListDiv.innerHTML = '';
+            pastListDiv.innerHTML = '';
+            // Render to-do workouts
+            if (workoutsToDo.length === 0) {
+                const emptyMsg = document.createElement('p');
+                emptyMsg.textContent = 'Nessun allenamento da fare.';
+                toDoListDiv.appendChild(emptyMsg);
+            } else {
+                // Sort by date ascending
+                const sorted = workoutsToDo.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+                sorted.forEach(w => {
+                    const wDate = new Date(w.date);
+                    // Use weekIndex if provided; otherwise compute ISO week number
+                    const weekNum = w.weekIndex || getISOWeek(wDate);
+                    // Day index (Monday=1)
+                    const dayIndex = ((wDate.getDay() + 6) % 7) + 1;
+                    const exCount = w.exercises ? w.exercises.length : 0;
+                    const item = document.createElement('div');
+                    item.className = 'workout-item';
+                    // Format date in "D MMM" Italian
+                    const dateOptions = { day: 'numeric', month: 'short' };
+                    const dateStr = wDate.toLocaleDateString('it-IT', dateOptions);
+                    item.innerHTML = `
+                        <div>
+                            <div class="workout-day-label">Giorno ${dayIndex}</div>
+                            <div class="workout-date-week">${dateStr} (Settimana ${weekNum})</div>
+                        </div>
+                        <div class="workout-body">
+                            <strong>${w.name}</strong><br>
+                            <span class="workout-excount">${exCount} esercizi</span>
+                        </div>
+                        <div class="workout-arrow">›</div>
+                    `;
+                    // Add delete icon
+                    const delIcon = document.createElement('span');
+                    delIcon.className = 'workout-delete';
+                    delIcon.innerHTML = '🗑️';
+                    delIcon.title = 'Elimina allenamento';
+                    delIcon.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        deleteWorkout(w.id);
+                    });
+                    item.appendChild(delIcon);
+                    item.addEventListener('click', () => {
+                        showWorkoutDetail(w.id);
+                    });
+                    toDoListDiv.appendChild(item);
+                });
+            }
+            // Render past workouts
+            if (workoutsPast.length === 0) {
+                const emptyMsg = document.createElement('p');
+                emptyMsg.textContent = 'Nessun allenamento passato.';
+                pastListDiv.appendChild(emptyMsg);
+            } else {
+            workoutsPast.forEach(w => {
+                const item = document.createElement('div');
+                item.className = 'workout-item';
+                item.innerHTML = `
+                        <div>
+                            <div class="workout-day-label">✔</div>
+                            <div class="workout-date-week">${w.completedDate}</div>
+                        </div>
+                        <div class="workout-body">
+                            <strong>${w.name}</strong><br>
+                            <span class="workout-excount">Tempo: ${w.elapsed}</span>
+                        </div>
+                    `;
+                item.addEventListener('click', () => {
+                    showPastWorkoutDetail(w.id);
+                });
+                pastListDiv.appendChild(item);
+            });
+            }
+        }
+
+        /**
+         * Render the weight history list. Displays each exercise and its recorded
+         * weight/reps entries. If no history exists, a message is shown.
+         */
+        function renderHistoryList() {
+            historyListEl.innerHTML = '';
+            const exerciseNames = Object.keys(weightHistory);
+            if (exerciseNames.length === 0) {
+                const emptyMsg = document.createElement('p');
+                emptyMsg.textContent = 'Nessun dato di storico pesi.';
+                historyListEl.appendChild(emptyMsg);
+                return;
+            }
+            // For each exercise, display grouped records by date as a table
+            exerciseNames.forEach(exName => {
+                const section = document.createElement('div');
+                section.style.marginBottom = '30px';
+                // Title clickable to open full history page
+                const titleEl = document.createElement('h3');
+                titleEl.textContent = exName;
+                titleEl.style.color = '#ff4081';
+                titleEl.style.cursor = 'pointer';
+                titleEl.addEventListener('click', () => {
+                    showExerciseHistory(exName);
+                });
+                section.appendChild(titleEl);
+                const records = weightHistory[exName];
+                if (!records || records.length === 0) {
+                    const p = document.createElement('p');
+                    p.textContent = 'Nessun dato di storico pesi.';
+                    p.style.color = '#aaaaaa';
+                    section.appendChild(p);
+                    historyListEl.appendChild(section);
+                    return;
+                }
+                // Group by date
+                const grouped = {};
+                records.forEach(rec => {
+                    if (!grouped[rec.date]) grouped[rec.date] = [];
+                    grouped[rec.date].push(rec);
+                });
+                const dates = Object.keys(grouped).sort((a, b) => new Date(b) - new Date(a));
+                dates.forEach(dateStr => {
+                    const dt = new Date(dateStr);
+                    const dateLabel = dt.toLocaleDateString('it-IT', { day:'2-digit', month:'short', year:'numeric' });
+                    const dateHeader = document.createElement('h4');
+                    dateHeader.textContent = dateLabel;
+                    dateHeader.style.color = '#ff4081';
+                    dateHeader.style.margin = '8px 0 4px 0';
+                    section.appendChild(dateHeader);
+                    const table = document.createElement('table');
+                    table.className = 'history-table';
+                    const thead = document.createElement('thead');
+                    // Include actions column header
+                    thead.innerHTML = '<tr><th>Serie</th><th>Peso (Kg)</th><th>Ripetizioni</th><th>Workout</th><th>Azioni</th></tr>';
+                    table.appendChild(thead);
+                    const tbody = document.createElement('tbody');
+                    grouped[dateStr].sort((a,b) => a.set - b.set).forEach(rec => {
+                        const row = document.createElement('tr');
+                        // Determine the index of the record in the global history array
+                        const recIndex = weightHistory[exName].indexOf(rec);
+                        row.innerHTML = `<td>${rec.set}</td><td>${rec.weight}</td><td>${rec.reps}</td><td>${rec.workoutName}</td>`;
+                        // Actions cell with edit and delete icons
+                        const actionsTd = document.createElement('td');
+                        actionsTd.className = 'history-actions';
+                        // Edit icon
+                        const editIcon = document.createElement('span');
+                        editIcon.textContent = '✎';
+                        editIcon.title = 'Modifica';
+                        editIcon.style.cursor = 'pointer';
+                        editIcon.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            editGlobalWeightRecord(exName, recIndex);
+                        });
+                        // Delete icon
+                        const delIcon = document.createElement('span');
+                        delIcon.textContent = '🗑️';
+                        delIcon.title = 'Elimina';
+                        delIcon.style.cursor = 'pointer';
+                        delIcon.style.marginLeft = '6px';
+                        delIcon.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            deleteGlobalWeightRecord(exName, recIndex);
+                        });
+                        actionsTd.appendChild(editIcon);
+                        actionsTd.appendChild(delIcon);
+                        row.appendChild(actionsTd);
+                        tbody.appendChild(row);
+                    });
+                    table.appendChild(tbody);
+                    section.appendChild(table);
+                });
+                historyListEl.appendChild(section);
+            });
+        }
+
+        /**
+         * Delete a workout from the to‑do list by id after confirmation.
+         * @param {number} id
+         */
+        function deleteWorkout(id) {
+            if (confirm('Vuoi eliminare questo allenamento?')) {
+                workoutsToDo = workoutsToDo.filter(w => w.id !== id);
+                // Also remove any active workout state pointing to this id
+                if (activeWorkoutState && activeWorkoutState.id === id) {
+                    try {
+                        localStorage.removeItem('activeWorkout');
+                    } catch (e) {}
+                    activeWorkoutState = null;
+                }
+                renderLists();
+            }
+        }
+
+        /**
+         * Show the history for a specific exercise. This displays a full page
+         * containing a table of past performances grouped by date.
+         * @param {string} exName
+         */
+        function showExerciseHistory(exName) {
+            // Hide other pages
+            detailDiv.style.display = 'none';
+            workoutsPageDiv.style.display = 'none';
+            exerciseHistoryPage.style.display = 'block';
+            historyExerciseNameEl.textContent = exName;
+            // Clear existing content
+            exerciseHistoryContentEl.innerHTML = '';
+            const records = weightHistory[exName];
+            if (!records || records.length === 0) {
+                const msg = document.createElement('p');
+                msg.textContent = 'Nessun dato di storico pesi per questo esercizio.';
+                msg.style.color = '#bbbbbb';
+                exerciseHistoryContentEl.appendChild(msg);
+                return;
+            }
+            // Group records by date (YYYY-MM-DD)
+            const grouped = {};
+            records.forEach(rec => {
+                if (!grouped[rec.date]) grouped[rec.date] = [];
+                grouped[rec.date].push(rec);
+            });
+            // Sort dates descending
+            const dates = Object.keys(grouped).sort((a, b) => new Date(b) - new Date(a));
+            dates.forEach(dateStr => {
+                const section = document.createElement('div');
+                section.className = 'date-section';
+                // Format date as  DD MMM YYYY in Italian
+                const dt = new Date(dateStr);
+                const dateLabel = dt.toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' });
+                const header = document.createElement('h4');
+                header.textContent = dateLabel;
+                section.appendChild(header);
+                // Build table
+                const table = document.createElement('table');
+                table.className = 'history-table';
+                const thead = document.createElement('thead');
+                // Add an extra header for actions (edit/delete)
+                thead.innerHTML = '<tr><th>Serie</th><th>Peso (Kg)</th><th>Ripetizioni</th><th>Azioni</th></tr>';
+                table.appendChild(thead);
+                const tbody = document.createElement('tbody');
+                // Sort by set number ascending
+                grouped[dateStr].sort((a, b) => a.set - b.set).forEach(rec => {
+                    const row = document.createElement('tr');
+                    // Find the index of this record in the full weightHistory array to support editing/deleting
+                    const recIndex = weightHistory[exName].indexOf(rec);
+                    row.innerHTML = `<td>${rec.set}</td><td>${rec.weight}</td><td>${rec.reps}</td>`;
+                    // Actions cell with edit and delete icons
+                    const actionsTd = document.createElement('td');
+                    actionsTd.className = 'history-actions';
+                    // Edit icon
+                    const editIcon = document.createElement('span');
+                    editIcon.textContent = '✎';
+                    editIcon.title = 'Modifica';
+                    editIcon.style.cursor = 'pointer';
+                    editIcon.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        editWeightRecord(exName, recIndex);
+                    });
+                    // Delete icon
+                    const deleteIcon = document.createElement('span');
+                    deleteIcon.textContent = '🗑️';
+                    deleteIcon.title = 'Elimina';
+                    deleteIcon.style.cursor = 'pointer';
+                    deleteIcon.style.marginLeft = '6px';
+                    deleteIcon.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        deleteWeightRecord(exName, recIndex);
+                    });
+                    actionsTd.appendChild(editIcon);
+                    actionsTd.appendChild(deleteIcon);
+                    row.appendChild(actionsTd);
+                    tbody.appendChild(row);
+                });
+                table.appendChild(tbody);
+                section.appendChild(table);
+                exerciseHistoryContentEl.appendChild(section);
+            });
+        }
+
+    /**
+     * Edit a weight history record. Prompts the user to update the weight and
+     * repetitions for the selected entry. After saving, re-renders the exercise
+     * history page for the same exercise.
+     * @param {string} exName - The exercise name
+     * @param {number} index - The index of the record in weightHistory[exName]
+     */
+    function editWeightRecord(exName, index) {
+        if (!weightHistory[exName] || index < 0 || index >= weightHistory[exName].length) return;
+        const rec = weightHistory[exName][index];
+        // Prompt for new values
+        const newWeight = prompt('Nuovo peso (Kg)', rec.weight);
+        if (newWeight === null) return;
+        const newReps = prompt('Nuove ripetizioni', rec.reps);
+        if (newReps === null) return;
+        // Update record
+        rec.weight = parseFloat(newWeight) || 0;
+        rec.reps = parseInt(newReps) || 0;
+        // Persist changes
+        try {
+            localStorage.setItem('weightHistory', JSON.stringify(weightHistory));
+        } catch (e) {}
+        // Refresh view
+        showExerciseHistory(exName);
+    }
+
+    /**
+     * Delete a weight history record after confirmation. Removes the entry
+     * from the weightHistory array and re-renders the exercise history page.
+     * @param {string} exName - The exercise name
+     * @param {number} index - The index of the record to delete
+     */
+    function deleteWeightRecord(exName, index) {
+        if (!weightHistory[exName] || index < 0 || index >= weightHistory[exName].length) return;
+        if (!confirm('Eliminare questa riga dallo storico pesi?')) return;
+        weightHistory[exName].splice(index, 1);
+        // Persist changes
+        try {
+            localStorage.setItem('weightHistory', JSON.stringify(weightHistory));
+        } catch (e) {}
+        showExerciseHistory(exName);
+    }
+
+        /**
+         * Edit a weight history record from the global history list. Prompts the user to
+         * update the weight and repetitions, then refreshes the global history page.
+         * @param {string} exName - The exercise name
+         * @param {number} index - The index of the record in weightHistory[exName]
+         */
+        function editGlobalWeightRecord(exName, index) {
+            if (!weightHistory[exName] || index < 0 || index >= weightHistory[exName].length) return;
+            const rec = weightHistory[exName][index];
+            const newWeight = prompt('Nuovo peso (Kg)', rec.weight);
+            if (newWeight === null) return;
+            const newReps = prompt('Nuove ripetizioni', rec.reps);
+            if (newReps === null) return;
+            rec.weight = parseFloat(newWeight) || 0;
+            rec.reps = parseInt(newReps) || 0;
+            try {
+                localStorage.setItem('weightHistory', JSON.stringify(weightHistory));
+            } catch (e) {}
+            renderHistoryList();
+        }
+
+        /**
+         * Delete a weight history record from the global history list after confirmation.
+         * Removes the entry and refreshes the global history page.
+         * @param {string} exName - The exercise name
+         * @param {number} index - The index of the record to delete
+         */
+        function deleteGlobalWeightRecord(exName, index) {
+            if (!weightHistory[exName] || index < 0 || index >= weightHistory[exName].length) return;
+            if (!confirm('Eliminare questa riga dallo storico pesi?')) return;
+            weightHistory[exName].splice(index, 1);
+            try {
+                localStorage.setItem('weightHistory', JSON.stringify(weightHistory));
+            } catch (e) {}
+            renderHistoryList();
+        }
+
+        // Show detail for a specific workout
+        function showWorkoutDetail(id) {
+            // find workout by id
+            currentWorkout = workoutsToDo.find(w => w.id === id);
+            if (!currentWorkout) return;
+            // Hide workouts page and show the detail view
+            workoutsPageDiv.style.display = 'none';
+            detailDiv.style.display = 'block';
+            // Hide bottom navigation when in detail view
+            if (bottomNav) bottomNav.style.display = 'none';
+            workoutNameEl.textContent = currentWorkout.name;
+            exerciseListEl.innerHTML = '';
+            notesEl.value = '';
+            startBtn.style.display = 'inline-block';
+            finishBtn.style.display = 'none';
+            elapsedTimeEl.textContent = '';
+            // Ensure rest overlay is hidden when opening a new workout
+            restAreaEl.classList.remove('active');
+            restAreaEl.innerHTML = '';
+            // set up delete button handler
+            if (deleteWorkoutBtn) {
+                deleteWorkoutBtn.style.display = 'inline-block';
+                deleteWorkoutBtn.onclick = (ev) => {
+                    ev.stopPropagation();
+                    if (confirm('Vuoi eliminare questo allenamento?')) {
+                        deleteWorkout(currentWorkout.id);
+                        detailDiv.style.display = 'none';
+                        // return to workouts page
+                        showWorkoutsPage();
+                    }
+                };
+            }
+            // populate exercises
+            currentWorkout.exercises.forEach((ex, idx) => {
+                const exDiv = document.createElement('div');
+                exDiv.className = 'exercise';
+                const exHeader = document.createElement('h3');
+                exHeader.textContent = ex.name;
+                exDiv.appendChild(exHeader);
+                const info = document.createElement('p');
+                info.textContent = `Serie: ${ex.sets} × ${ex.reps} ripetizioni`;
+                exDiv.appendChild(info);
+                // Tab buttons container
+                const tabsWrapper = document.createElement('div');
+                tabsWrapper.style.display = 'flex';
+                tabsWrapper.style.marginTop = '8px';
+                // Execution tab button
+                const execBtn = document.createElement('button');
+                execBtn.textContent = 'Esecuzione';
+                execBtn.className = 'btn btn-secondary';
+                execBtn.style.marginRight = '6px';
+                // History tab button
+                const histBtn = document.createElement('button');
+                histBtn.textContent = 'Storico pesi';
+                histBtn.className = 'btn btn-secondary';
+                tabsWrapper.appendChild(execBtn);
+                tabsWrapper.appendChild(histBtn);
+                exDiv.appendChild(tabsWrapper);
+
+                // Content containers
+                const execContent = document.createElement('div');
+                execContent.style.display = 'none';
+                execContent.style.marginTop = '8px';
+                // Try to load a custom media for the exercise or fallback to a slug image
+                const mediaContainer = document.createElement('div');
+                if (ex.media) {
+                    // Determine if it's a video or image by MIME prefix
+                    if (ex.media.startsWith('data:video')) {
+                        const videoEl = document.createElement('video');
+                        videoEl.controls = true;
+                        videoEl.style.maxWidth = '100%';
+                        videoEl.style.borderRadius = '4px';
+                        videoEl.src = ex.media;
+                        mediaContainer.appendChild(videoEl);
+                    } else {
+                        const img = document.createElement('img');
+                        img.style.maxWidth = '100%';
+                        img.style.borderRadius = '4px';
+                        img.src = ex.media;
+                        img.alt = ex.name;
+                        mediaContainer.appendChild(img);
+                    }
+                } else {
+                    const img = document.createElement('img');
+                    img.style.maxWidth = '100%';
+                    img.style.borderRadius = '4px';
+                    const slugName = ex.name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+                    img.src = `exercise_images/${slugName}.png`;
+                    img.alt = ex.name;
+                    mediaContainer.appendChild(img);
+                }
+                execContent.appendChild(mediaContainer);
+                // Add description text: use custom execDesc if provided, else fallback to instructions
+                const desc = document.createElement('p');
+                desc.style.fontSize = '14px';
+                desc.style.marginTop = '4px';
+                if (ex.execDesc && ex.execDesc.length > 0) {
+                    desc.textContent = ex.execDesc;
+                } else {
+                    desc.textContent = exerciseInstructions[ex.name] || 'Istruzioni non disponibili per questo esercizio.';
+                }
+                execContent.appendChild(desc);
+
+                const histContent = document.createElement('div');
+                histContent.style.display = 'none';
+                histContent.style.marginTop = '8px';
+                // Populate historical records with input boxes for weight and reps
+                if (weightHistory[ex.name] && weightHistory[ex.name].length > 0) {
+                    const histTitle = document.createElement('small');
+                    histTitle.style.color = '#bbbbbb';
+                    histTitle.textContent = 'Storico recente:';
+                    histContent.appendChild(histTitle);
+                    const records = weightHistory[ex.name].slice(-5);
+                    records.forEach(rec => {
+                        const row = document.createElement('div');
+                        row.className = 'history-row';
+                        const label = document.createElement('small');
+                        label.textContent = `${rec.date} – Set ${rec.set}:`;
+                        row.appendChild(label);
+                        const weightBox = document.createElement('input');
+                        weightBox.type = 'number';
+                        weightBox.value = rec.weight;
+                        weightBox.disabled = true;
+                        row.appendChild(weightBox);
+                        const repsBox = document.createElement('input');
+                        repsBox.type = 'number';
+                        repsBox.value = rec.reps;
+                        repsBox.disabled = true;
+                        row.appendChild(repsBox);
+                        histContent.appendChild(row);
+                    });
+                } else {
+                    const p = document.createElement('p');
+                    p.style.fontSize = '12px';
+                    p.style.color = '#aaaaaa';
+                    p.textContent = 'Nessun dato di storico pesi.';
+                    histContent.appendChild(p);
+                }
+
+                exDiv.appendChild(execContent);
+                exDiv.appendChild(histContent);
+
+                // Tab click handlers to toggle visibility
+                execBtn.addEventListener('click', () => {
+                    // Toggle execution content visibility
+                    if (execContent.style.display === 'block') {
+                        execContent.style.display = 'none';
+                        execBtn.classList.remove('btn-primary');
+                        execBtn.classList.add('btn-secondary');
+                    } else {
+                        execContent.style.display = 'block';
+                        execBtn.classList.add('btn-primary');
+                        execBtn.classList.remove('btn-secondary');
+                    }
+                });
+                histBtn.addEventListener('click', () => {
+                    // When user taps the Storico pesi button inside an exercise, show the full history page
+                    showExerciseHistory(ex.name);
+                });
+
+                // create sets inputs
+                const setsContainer = document.createElement('div');
+                setsContainer.className = 'sets-container';
+                for (let i = 1; i <= ex.sets; i++) {
+                    const row = document.createElement('div');
+                    row.className = 'set-row';
+                    const label = document.createElement('span');
+                    label.textContent = `Set ${i}`;
+                    row.appendChild(label);
+                    const weightInput = document.createElement('input');
+                    weightInput.type = 'number';
+                    weightInput.placeholder = 'Kg';
+                    weightInput.dataset.exIdx = idx;
+                    weightInput.dataset.setIdx = i;
+                    weightInput.className = 'weight-input';
+                    const repsInput = document.createElement('input');
+                    repsInput.type = 'number';
+                    repsInput.placeholder = 'Ripetizioni';
+                    repsInput.dataset.exIdx = idx;
+                    repsInput.dataset.setIdx = i;
+                    repsInput.className = 'reps-input';
+                    // Attach input listeners to persist state
+                    weightInput.addEventListener('input', () => {
+                        updateActiveInput(idx, i, weightInput.value, repsInput.value);
+                    });
+                    repsInput.addEventListener('input', () => {
+                        updateActiveInput(idx, i, weightInput.value, repsInput.value);
+                    });
+                    row.appendChild(weightInput);
+                    row.appendChild(repsInput);
+                    setsContainer.appendChild(row);
+                }
+                exDiv.appendChild(setsContainer);
+                // rest button for this exercise
+                const restBtn = document.createElement('button');
+                restBtn.textContent = `Recupero ${ex.rest}"`;
+                restBtn.className = 'btn btn-secondary btn-timer';
+                restBtn.addEventListener('click', () => {
+                    const restSeconds = parseInt(ex.rest, 10);
+                    startRestCountdown(isNaN(restSeconds) ? 0 : restSeconds, ex.name);
+                });
+                exDiv.appendChild(restBtn);
+                exerciseListEl.appendChild(exDiv);
+            });
+            // If there is an active workout state for this workout, restore it
+            if (activeWorkoutState && activeWorkoutState.id === currentWorkout.id) {
+                // Restore start time
+                startTime = new Date(activeWorkoutState.startTime);
+                startBtn.style.display = 'none';
+                finishBtn.style.display = 'inline-block';
+                // Start updating elapsed time display
+                if (elapsedIntervalId) {
+                    clearInterval(elapsedIntervalId);
+                }
+                elapsedIntervalId = setInterval(() => {
+                    const now = new Date();
+                    const diffSec = Math.floor((now - startTime) / 1000);
+                    const minutes = Math.floor(diffSec / 60);
+                    const seconds = diffSec % 60;
+                    elapsedTimeEl.textContent = `Tempo trascorso: ${minutes}m ${seconds}s`;
+                }, 1000);
+                // Restore inputs values
+                const weightInputs = document.querySelectorAll('.weight-input');
+                const repsInputs = document.querySelectorAll('.reps-input');
+                weightInputs.forEach((wInput, index) => {
+                    const exIdx = parseInt(wInput.dataset.exIdx);
+                    const setIdx = parseInt(wInput.dataset.setIdx);
+                    const key = `${exIdx}-${setIdx}`;
+                    if (activeWorkoutState.inputs && activeWorkoutState.inputs[key]) {
+                        wInput.value = activeWorkoutState.inputs[key].weight;
+                        repsInputs[index].value = activeWorkoutState.inputs[key].reps;
+                    }
+                });
+                // Restore rest timer if needed
+                if (activeWorkoutState.restEndTime) {
+                    const now = Date.now();
+                    const remainingMs = activeWorkoutState.restEndTime - now;
+                    if (remainingMs > 0) {
+                        const remainingSec = Math.floor(remainingMs / 1000);
+                        const restExName = activeWorkoutState.restExerciseName || '';
+                        startRestCountdown(remainingSec, restExName);
+                    } else {
+                        restAreaEl.textContent = 'Recupero finito!';
+                        activeWorkoutState.restEndTime = null;
+                        activeWorkoutState.restExerciseName = '';
+                        try {
+                            localStorage.setItem('activeWorkout', JSON.stringify(activeWorkoutState));
+                        } catch (e) {}
+                    }
+                }
+                // Restore notes if available
+                if (activeWorkoutState.notes) {
+                    notesEl.value = activeWorkoutState.notes;
+                }
+            }
+        }
+
+        // Start training: record start time and toggle buttons
+        function startTraining() {
+            startTime = new Date();
+            startBtn.style.display = 'none';
+            finishBtn.style.display = 'inline-block';
+            elapsedTimeEl.textContent = '';
+            // Save active workout state to localStorage so session can be resumed
+            activeWorkoutState = {
+                id: currentWorkout.id,
+                startTime: startTime.toISOString(),
+                inputs: activeWorkoutState && activeWorkoutState.inputs ? activeWorkoutState.inputs : {},
+                restEndTime: null,
+                notes: notesEl.value
+            };
+            try {
+                localStorage.setItem('activeWorkout', JSON.stringify(activeWorkoutState));
+            } catch (e) {
+                // ignore storage errors
+            }
+            // If there is an existing elapsed timer, clear it
+            if (elapsedIntervalId) {
+                clearInterval(elapsedIntervalId);
+            }
+            // Start interval to update elapsed time display every second
+            elapsedIntervalId = setInterval(() => {
+                // Compute elapsed time but intentionally do not display it. The user
+                // requested that the running workout timer not be shown on the
+                // workout detail page. We still track it internally via startTime
+                // for when the summary page is shown.
+                const now = new Date();
+                const diffSec = Math.floor((now - startTime) / 1000);
+                const minutes = Math.floor(diffSec / 60);
+                const seconds = diffSec % 60;
+                // Do not update elapsedTimeEl to hide the timer display
+            }, 1000);
+            // Play encouragement message when workout starts
+            speakMale('Miriana Buon allenamento');
+        }
+        // Finish training: compute elapsed time, move workout to past list
+        function finishTraining() {
+            const endTime = new Date();
+            const diffMs = endTime - startTime;
+            const diffSec = Math.floor(diffMs / 1000);
+            const minutes = Math.floor(diffSec / 60);
+            const seconds = diffSec % 60;
+            const elapsedStr = `${minutes}m ${seconds}s`;
+            elapsedTimeEl.textContent = `Tempo impiegato: ${elapsedStr}`;
+            // Play congratulatory message at end of workout
+            speakMale('Piccola Anima complimenti anche oggi sei riuscita a superare i tuoi limiti');
+            // move to past list with completed date and elapsed time
+            const completedDate = new Date().toISOString().slice(0, 10);
+            workoutsPast.push({
+                id: currentWorkout.id,
+                name: currentWorkout.name,
+                completedDate: completedDate,
+                elapsed: elapsedStr
+            });
+            // remove from to-do list
+            workoutsToDo = workoutsToDo.filter(w => w.id !== currentWorkout.id);
+            renderLists();
+            // hide finish button
+            finishBtn.style.display = 'none';
+            // Return to workouts page after completing the workout
+            detailDiv.style.display = 'none';
+            workoutsPageDiv.style.display = 'block';
+            // Hide rest overlay
+            restAreaEl.classList.remove('active');
+            restAreaEl.innerHTML = '';
+            // Save weight history for this workout
+            saveWeightHistory(completedDate);
+            try {
+                localStorage.setItem('weightHistory', JSON.stringify(weightHistory));
+            } catch (e) {
+                console.error('Errore nel salvataggio dello storico pesi', e);
+            }
+            // Clear active workout state and elapsed timer
+            try {
+                localStorage.removeItem('activeWorkout');
+            } catch (e) {
+                // ignore
+            }
+            activeWorkoutState = null;
+            if (elapsedIntervalId) {
+                clearInterval(elapsedIntervalId);
+                elapsedIntervalId = null;
+            }
+        }
+        // Start rest countdown
+        function startRestCountdown(seconds, exerciseName) {
+            // Clear any existing timer
+            clearInterval(restTimerId);
+            let remaining = seconds;
+            // Save initial rest end time
+            function saveRestEnd() {
+                if (activeWorkoutState && currentWorkout && currentWorkout.id === activeWorkoutState.id) {
+                    const nowTime = Date.now();
+                    activeWorkoutState.restEndTime = nowTime + remaining * 1000;
+                    // Persist the exercise name for this rest period for resume
+                    activeWorkoutState.restExerciseName = exerciseName || '';
+                    try {
+                        localStorage.setItem('activeWorkout', JSON.stringify(activeWorkoutState));
+                    } catch (e) {
+                        // ignore storage errors
+                    }
+                }
+            }
+            saveRestEnd();
+            // Clear and show overlay
+            restAreaEl.innerHTML = '';
+            restAreaEl.classList.add('active');
+            // Build header with exercise name and close button
+            const header = document.createElement('div');
+            header.className = 'rest-overlay-header';
+            const titleEl = document.createElement('h4');
+            titleEl.textContent = exerciseName ? `Recupero: ${exerciseName}` : 'Recupero';
+            header.appendChild(titleEl);
+            const closeEl = document.createElement('div');
+            closeEl.className = 'rest-overlay-close';
+            closeEl.innerHTML = '×';
+            closeEl.addEventListener('click', () => {
+                clearInterval(restTimerId);
+                restAreaEl.classList.remove('active');
+                restAreaEl.innerHTML = '';
+                // clear rest end time
+                if (activeWorkoutState && currentWorkout && currentWorkout.id === activeWorkoutState.id) {
+                    activeWorkoutState.restEndTime = null;
+                    try {
+                        localStorage.setItem('activeWorkout', JSON.stringify(activeWorkoutState));
+                    } catch (e) {}
+                }
+            });
+            header.appendChild(closeEl);
+            restAreaEl.appendChild(header);
+            // Content container with timer and buttons
+            const content = document.createElement('div');
+            content.className = 'rest-overlay-content';
+            // Timer wrapper
+            const timerWrapper = document.createElement('div');
+            timerWrapper.className = 'timer-wrapper';
+            const timerCircle = document.createElement('div');
+            timerCircle.className = 'timer-circle';
+            const timerDisplay = document.createElement('div');
+            function formatTime(sec) {
+                const m = Math.floor(sec / 60);
+                const s = sec % 60;
+                return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            }
+            timerDisplay.textContent = formatTime(remaining);
+            timerCircle.appendChild(timerDisplay);
+            timerWrapper.appendChild(timerCircle);
+            // Buttons container
+            const buttonsContainer = document.createElement('div');
+            buttonsContainer.className = 'rest-buttons';
+            const minusBtn = document.createElement('button');
+            minusBtn.textContent = '- 10 s';
+            minusBtn.className = 'rest-btn';
+            minusBtn.addEventListener('click', () => {
+                remaining = Math.max(0, remaining - 10);
+                timerDisplay.textContent = formatTime(remaining);
+                saveRestEnd();
+            });
+            const plusBtn = document.createElement('button');
+            plusBtn.textContent = '+ 10 s';
+            plusBtn.className = 'rest-btn';
+            plusBtn.addEventListener('click', () => {
+                remaining += 10;
+                timerDisplay.textContent = formatTime(remaining);
+                saveRestEnd();
+            });
+            buttonsContainer.appendChild(minusBtn);
+            buttonsContainer.appendChild(plusBtn);
+            // Append to content
+            content.appendChild(timerWrapper);
+            content.appendChild(buttonsContainer);
+            restAreaEl.appendChild(content);
+            // Start countdown interval
+            restTimerId = setInterval(() => {
+                remaining--;
+                if (remaining <= 0) {
+                    clearInterval(restTimerId);
+                    timerDisplay.textContent = '00:00';
+                    // Hide overlay after short delay
+                    setTimeout(() => {
+                        restAreaEl.classList.remove('active');
+                        restAreaEl.innerHTML = '';
+                    }, 500);
+                    // Voice message on rest end
+                    speakMale('Miriana sei bellissima, dai spingi');
+                    if (activeWorkoutState && currentWorkout && currentWorkout.id === activeWorkoutState.id) {
+                        activeWorkoutState.restEndTime = null;
+                        try {
+                            localStorage.setItem('activeWorkout', JSON.stringify(activeWorkoutState));
+                        } catch (e) {}
+                    }
+                } else {
+                    timerDisplay.textContent = formatTime(remaining);
+                }
+            }, 1000);
+        }
+
+        /**
+         * Update the active workout state with the value of a specific set. Stores
+         * weight and reps for the current exercise index and set index.
+         * @param {number} exIdx - index of the exercise in currentWorkout.exercises
+         * @param {number} setIdx - number of the set (1-based)
+         * @param {string|number} weight - weight value entered
+         * @param {string|number} reps - repetitions value entered
+         */
+        function updateActiveInput(exIdx, setIdx, weight, reps) {
+            if (!activeWorkoutState || currentWorkout.id !== activeWorkoutState.id) return;
+            const key = `${exIdx}-${setIdx}`;
+            if (!activeWorkoutState.inputs) {
+                activeWorkoutState.inputs = {};
+            }
+            activeWorkoutState.inputs[key] = { weight: weight, reps: reps };
+            try {
+                localStorage.setItem('activeWorkout', JSON.stringify(activeWorkoutState));
+            } catch (e) {
+                // ignore
+            }
+        }
+
+        /**
+         * Save weight and rep values entered during a workout to the history.
+         * Each entry is saved under its exercise name with date, workout name,
+         * set number, weight and reps.
+         * @param {string} date - The date of the workout completion (YYYY-MM-DD)
+         */
+        function saveWeightHistory(date) {
+            const weightInputs = document.querySelectorAll('.weight-input');
+            const repsInputs = document.querySelectorAll('.reps-input');
+            weightInputs.forEach((wInput, index) => {
+                const exIdx = parseInt(wInput.dataset.exIdx);
+                const setIdx = parseInt(wInput.dataset.setIdx);
+                const exName = currentWorkout.exercises[exIdx].name;
+                const weightVal = wInput.value ? parseFloat(wInput.value) : 0;
+                const repsVal = repsInputs[index].value ? parseInt(repsInputs[index].value) : 0;
+                if (!weightHistory[exName]) {
+                    weightHistory[exName] = [];
+                }
+                weightHistory[exName].push({
+                    date: date,
+                    workoutName: currentWorkout.name,
+                    set: setIdx,
+                    weight: weightVal,
+                    reps: repsVal
+                });
+            });
+        }
+        // Initial rendering
+        renderLists();
+
+        /**
+         * Create falling petals on the entry page. Each petal uses random start and
+         * end positions and durations to give a soft, floating effect. The petals
+         * are appended to the `.petal-container` inside the entry page.
+         */
+        function createPetals() {
+            const container = document.querySelector('.petal-container');
+            if (!container) return;
+            // Clear existing petals if any
+            container.innerHTML = '';
+            const count = 40;
+            for (let i = 0; i < count; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                // Random horizontal start and end positions (0–100vw)
+                petal.style.setProperty('--startX', `${Math.random() * 100}vw`);
+                petal.style.setProperty('--endX', `${Math.random() * 100}vw`);
+                // Randomize fall duration between 5–10 seconds
+                petal.style.animationDuration = `${5 + Math.random() * 5}s`;
+                // Randomize delay so petals start at different times
+                petal.style.animationDelay = `${Math.random() * 5}s`;
+                container.appendChild(petal);
+            }
+
+            // End of createPetals: return so functions defined below are not scoped
+            return;
+        }
+
+        /**
+         * Retrieve the daily motivational quote. A new quote is selected once
+         * every 24 hours. The index and timestamp are stored in localStorage.
+         * @returns {string} The quote for the current 24‑hour period.
+         */
+        function getDailyQuote() {
+            const quotes = window.motivationalQuotes || [];
+            const lastIndex = localStorage.getItem('dailyQuoteIndex');
+            const lastTime = localStorage.getItem('dailyQuoteTimestamp');
+            const now = Date.now();
+            const dayMillis = 24 * 60 * 60 * 1000;
+            // If no previous quote or more than 24 hours passed, pick a new one
+            if (!lastIndex || !lastTime || now - parseInt(lastTime, 10) > dayMillis) {
+                if (quotes.length === 0) return '';
+                const newIndex = Math.floor(Math.random() * quotes.length);
+                localStorage.setItem('dailyQuoteIndex', newIndex.toString());
+                localStorage.setItem('dailyQuoteTimestamp', now.toString());
+                return quotes[newIndex] || '';
+            }
+            const idx = parseInt(lastIndex, 10);
+            return quotes[idx] || '';
+        }
+
+        /**
+         * Display the door overlay with the daily quote and animate the doors
+         * opening. The quote is shown for 5 seconds before the doors slide
+         * apart. After the animation, the overlay is hidden and the main menu
+         * appears.
+         */
+        function showDoorOverlay() {
+            // If overlay elements are not present, fallback directly to main menu
+            if (!doorOverlay || !doorLeft || !doorRight || !quoteMessageEl) {
+                showMainMenu();
+                return;
+            }
+            // Set quote text
+            quoteMessageEl.textContent = getDailyQuote();
+            // Display overlay and ensure doors are closed
+            doorOverlay.style.display = 'block';
+            doorLeft.style.transform = 'translateX(0)';
+            doorRight.style.transform = 'translateX(0)';
+            // After 5 seconds, open doors
+            setTimeout(() => {
+                doorLeft.style.transform = 'translateX(-100%)';
+                doorRight.style.transform = 'translateX(100%)';
+                // After the doors finish opening, hide the overlay and show main menu
+                setTimeout(() => {
+                    doorOverlay.style.display = 'none';
+                    showMainMenu();
+                }, 1000);
+            }, 5000);
+        }
+
+        // If entry page is present, set up petals and entry button
+        if (entryPageEl) {
+            createPetals();
+            // When the user presses the enter button, animate the entry page out,
+            // play the welcome message and then show the door overlay with the daily quote.
+            enterAppBtnEl.addEventListener('click', () => {
+                // Apply hide class to play the entry animation (petal overlay fade)
+                entryPageEl.classList.add('hide');
+                // Speak the welcome message immediately
+                speakMale('Miriana Felice di rivederti');
+                // After the hide animation completes, remove the entry page and display the door overlay
+                setTimeout(() => {
+                    entryPageEl.style.display = 'none';
+                    showDoorOverlay();
+                }, 1000);
+            });
+        }
+
+        /**
+         * Navigation helpers to switch between main menu, workouts page and detail view.
+         * setActiveNav toggles the active state of bottom nav items.
+         */
+        function setActiveNav(element) {
+            [navProfile, navReminders, navHome, navChat, navNotifications].forEach(nav => {
+                nav.classList.remove('active');
+            });
+            if (element) element.classList.add('active');
+        }
+
+        function showMainMenu() {
+            // Hide entry page if visible
+            if (entryPageEl) entryPageEl.style.display = 'none';
+            // Show main menu and hide other pages
+            mainMenuDiv.style.display = 'block';
+            workoutsPageDiv.style.display = 'none';
+            detailDiv.style.display = 'none';
+            nutritionPageEl.style.display = 'none';
+            chatPageEl.style.display = 'none';
+            summaryPageEl.style.display = 'none';
+            pastWorkoutPageEl.style.display = 'none';
+            exerciseHistoryPage.style.display = 'none';
+            if (profilePageEl) profilePageEl.style.display = 'none';
+            // Show bottom navigation when on main menu
+            if (bottomNav) bottomNav.style.display = 'flex';
+            setActiveNav(navHome);
+        }
+
+        function showWorkoutsPage() {
+            // Hide entry and main menu
+            if (entryPageEl) entryPageEl.style.display = 'none';
+            mainMenuDiv.style.display = 'none';
+            workoutsPageDiv.style.display = 'block';
+            detailDiv.style.display = 'none';
+            nutritionPageEl.style.display = 'none';
+            chatPageEl.style.display = 'none';
+            summaryPageEl.style.display = 'none';
+            pastWorkoutPageEl.style.display = 'none';
+            exerciseHistoryPage.style.display = 'none';
+            // Hide bottom navigation when entering workouts
+            if (bottomNav) bottomNav.style.display = 'none';
+            setActiveNav(navHome);
+        }
+
+        // Hook up main menu buttons to show appropriate sections
+        menuWorkouts.addEventListener('click', () => {
+            showWorkoutsPage();
+        });
+        menuHistory.addEventListener('click', () => {
+            showWorkoutsPage();
+            // Switch to history tab once on workouts page
+            btnHistoryTab.click();
+        });
+        menuMetrics.addEventListener('click', () => { alert('Sezione Metriche in sviluppo'); });
+        menuProgress.addEventListener('click', () => { alert('Sezione Progressi in sviluppo'); });
+        menuNutrition.addEventListener('click', () => {
+            showNutritionPage();
+        });
+        menuBookings.addEventListener('click', () => { alert('Sezione Prenotazioni in sviluppo'); });
+        menuQuestionnaires.addEventListener('click', () => { alert('Sezione Questionari in sviluppo'); });
+        menuPurchases.addEventListener('click', () => { alert('Sezione Acquisti in sviluppo'); });
+
+        // Bottom navigation events
+        navHome.addEventListener('click', () => {
+            showMainMenu();
+        });
+        navProfile.addEventListener('click', () => {
+            // Open the profile page instead of the placeholder alert
+            showProfilePage();
+            setActiveNav(navProfile);
+        });
+        navReminders.addEventListener('click', () => { alert('Promemoria in sviluppo'); setActiveNav(navReminders); });
+        // Open chat page when Chat nav is clicked
+        navChat.addEventListener('click', () => {
+            showChatPage();
+            setActiveNav(navChat);
+        });
+        navNotifications.addEventListener('click', () => { alert('Notifiche in sviluppo'); setActiveNav(navNotifications); });
+
+        // The entry page will control initial navigation. Do not call showMainMenu() here.
+
+        // Handle back button on exercise history page
+        exerciseHistoryBack.addEventListener('click', () => {
+            exerciseHistoryPage.style.display = 'none';
+            // If a current workout is selected, return to detail view; otherwise to workouts page
+            if (currentWorkout) {
+                detailDiv.style.display = 'block';
+            } else {
+                // Return to main workouts page
+                workoutsPageDiv.style.display = 'block';
+            }
+        });
+
+        /**
+         * Show the nutrition main page, hide others. Displays the nutrition menu.
+         */
+        function showNutritionPage() {
+            // Hide all pages
+            mainMenuDiv.style.display = 'none';
+            workoutsPageDiv.style.display = 'none';
+            detailDiv.style.display = 'none';
+            exerciseHistoryPage.style.display = 'none';
+            nutritionPageEl.style.display = 'block';
+            chatPageEl.style.display = 'none';
+            summaryPageEl.style.display = 'none';
+            pastWorkoutPageEl.style.display = 'none';
+            // Hide bottom nav while in nutrition
+            if (bottomNav) bottomNav.style.display = 'none';
+        }
+
+        /**
+         * Show the chat page. Loads messages from localStorage and renders them.
+         */
+        function showChatPage() {
+            mainMenuDiv.style.display = 'none';
+            workoutsPageDiv.style.display = 'none';
+            detailDiv.style.display = 'none';
+            exerciseHistoryPage.style.display = 'none';
+            nutritionPageEl.style.display = 'none';
+            chatPageEl.style.display = 'flex';
+            summaryPageEl.style.display = 'none';
+            pastWorkoutPageEl.style.display = 'none';
+            if (bottomNav) bottomNav.style.display = 'none';
+            loadChatMessages();
+        }
+
+        /**
+         * Show the profile page for creating or editing the user profile. Hides
+         * all other pages and pre-fills the form with saved values from
+         * userProfile. The bottom navigation is hidden while editing.
+         */
+        function showProfilePage() {
+            // Hide all other pages
+            mainMenuDiv.style.display = 'none';
+            workoutsPageDiv.style.display = 'none';
+            detailDiv.style.display = 'none';
+            exerciseHistoryPage.style.display = 'none';
+            nutritionPageEl.style.display = 'none';
+            chatPageEl.style.display = 'none';
+            summaryPageEl.style.display = 'none';
+            pastWorkoutPageEl.style.display = 'none';
+            profilePageEl.style.display = 'block';
+            // Hide bottom navigation
+            if (bottomNav) bottomNav.style.display = 'none';
+            // Pre-fill form fields
+            profileFirstNameInput.value = userProfile.firstName || '';
+            profileLastNameInput.value = userProfile.lastName || '';
+            profileEmailInput.value = userProfile.email || '';
+            profilePasswordInput.value = userProfile.password || '';
+        }
+
+        /**
+         * Render chat messages in the chat page.
+         */
+        function loadChatMessages() {
+            chatMessagesEl.innerHTML = '';
+            if (!Array.isArray(chatMessagesData)) chatMessagesData = [];
+            // Display when the chat was initiated (first message time)
+            if (chatMessagesData.length > 0) {
+                const firstDate = new Date(chatMessagesData[0].timestamp);
+                const startDiv = document.createElement('div');
+                startDiv.className = 'chat-start';
+                startDiv.textContent = 'Chat iniziata il ' + firstDate.toLocaleString('it-IT', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                chatMessagesEl.appendChild(startDiv);
+            }
+            let lastDateStr = null;
+            chatMessagesData.forEach(msg => {
+                const dateObj = new Date(msg.timestamp);
+                const dateStr = dateObj.toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' });
+                // Insert a date separator if it's a new day
+                if (dateStr !== lastDateStr) {
+                    const dateDiv = document.createElement('div');
+                    dateDiv.className = 'chat-date';
+                    dateDiv.textContent = dateStr;
+                    chatMessagesEl.appendChild(dateDiv);
+                    lastDateStr = dateStr;
+                }
+                // Build message element
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'chat-message ' + (msg.sender === 'user' ? 'user' : 'coach');
+                const bubble = document.createElement('div');
+                bubble.className = 'chat-bubble';
+                bubble.textContent = msg.text;
+                msgDiv.appendChild(bubble);
+                // Add time below message
+                const timeSpan = document.createElement('span');
+                timeSpan.className = 'chat-time';
+                timeSpan.textContent = dateObj.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+                msgDiv.appendChild(timeSpan);
+                chatMessagesEl.appendChild(msgDiv);
+            });
+            // Scroll to bottom of chat
+            chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+        }
+
+        // Event to send a new chat message
+        sendChatBtnEl.addEventListener('click', () => {
+            const text = chatMessageInputEl.value.trim();
+            if (!text) return;
+            chatMessagesData.push({ sender: 'user', text: text, timestamp: Date.now() });
+            chatMessageInputEl.value = '';
+            // Persist messages to storage
+            try {
+                localStorage.setItem('chatMessages', JSON.stringify(chatMessagesData));
+            } catch (e) {}
+            // Render messages without auto reply
+            loadChatMessages();
+        });
+        // Also send message on Enter key
+        chatMessageInputEl.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendChatBtnEl.click();
+            }
+        });
+
+        // Back to home from nutrition and chat
+        homeFromNutritionBtn.addEventListener('click', () => {
+            showMainMenu();
+        });
+        homeFromChatBtn.addEventListener('click', () => {
+            showMainMenu();
+        });
+
+        // Events for profile page
+        if (homeFromProfileBtn) {
+            homeFromProfileBtn.addEventListener('click', () => {
+                showMainMenu();
+            });
+        }
+        if (cancelProfileBtn) {
+            cancelProfileBtn.addEventListener('click', () => {
+                showMainMenu();
+            });
+        }
+        if (saveProfileBtn) {
+            saveProfileBtn.addEventListener('click', () => {
+                const fn = profileFirstNameInput.value.trim();
+                const ln = profileLastNameInput.value.trim();
+                const email = profileEmailInput.value.trim();
+                const pwd = profilePasswordInput.value;
+                // Require email and password
+                if (!email || !pwd) {
+                    alert('Per salvare il profilo è necessario inserire email e password.');
+                    return;
+                }
+                userProfile = { firstName: fn, lastName: ln, email: email, password: pwd };
+                try {
+                    localStorage.setItem('userProfile', JSON.stringify(userProfile));
+                } catch (e) {}
+                // Update displayed name in main menu if present
+                const nameLabel = document.querySelector('.profile-info h2');
+                if (nameLabel) {
+                    nameLabel.textContent = fn || 'Miriana';
+                }
+                alert('Profilo salvato. Una email di conferma sarà inviata a ' + email);
+                showMainMenu();
+            });
+        }
+
+        // Avatar upload: clicking the avatar triggers file selection
+        if (avatarImgEl && avatarUploadEl) {
+            avatarImgEl.addEventListener('click', () => {
+                avatarUploadEl.click();
+            });
+            avatarUploadEl.addEventListener('change', () => {
+                const file = avatarUploadEl.files && avatarUploadEl.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const dataUrl = e.target.result;
+                    avatarImgEl.src = dataUrl;
+                    try {
+                        localStorage.setItem('userAvatar', dataUrl);
+                    } catch (err) {}
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        /**
+         * Show summary page for current workout. Computes elapsed time and
+         * prepares rating buttons. Does not finalize the workout until user
+         * clicks complete.
+         */
+        function showSummaryPage() {
+            // Compute duration from start time
+            const now = new Date();
+            const diffSec = Math.floor((now - startTime) / 1000);
+            const minutes = Math.floor(diffSec / 60);
+            const seconds = diffSec % 60;
+            summaryDurationEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            // Hide detail and show summary
+            detailDiv.style.display = 'none';
+            summaryPageEl.style.display = 'block';
+            // Prepare ratings groups
+            prepareRatingGroup(diffRatingEl, diffLabelEl);
+            prepareRatingGroup(fatRatingEl, fatLabelEl);
+            prepareRatingGroup(painRatingEl, painLabelEl);
+            prepareRatingGroup(pumpRatingEl, pumpLabelEl);
+            // Hide bottom nav
+            if (bottomNav) bottomNav.style.display = 'none';
+        }
+
+        /**
+         * Prepare a rating group with 5 buttons and attach click events to update label.
+         * @param {HTMLElement} container Div where buttons will be appended
+         * @param {HTMLElement} label Element to display descriptive text
+         */
+        function prepareRatingGroup(container, label) {
+            container.innerHTML = '';
+            const descriptions = ['Molto facile', 'Facile', 'Moderata', 'Difficile', 'Molto difficile'];
+            for (let i = 1; i <= 5; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                btn.addEventListener('click', () => {
+                    // Remove active from siblings
+                    container.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    label.textContent = descriptions[i - 1] || '';
+                    container.dataset.value = i;
+                });
+                container.appendChild(btn);
+            }
+            // reset label and selected value
+            label.textContent = '';
+            container.dataset.value = '';
+        }
+
+        // Cancel summary returns to detail view
+        function cancelSummary() {
+            summaryPageEl.style.display = 'none';
+            detailDiv.style.display = 'block';
+            // Show bottom nav hidden previously
+            if (bottomNav) bottomNav.style.display = 'none';
+        }
+        summaryCancelBtnEl.addEventListener('click', cancelSummary);
+        summaryCancelBtnEl2.addEventListener('click', cancelSummary);
+
+        // Allow returning directly to the main menu from the summary page
+        if (summaryHomeBtnEl) {
+            summaryHomeBtnEl.addEventListener('click', () => {
+                // Hide the summary page and navigate to the main menu without finalizing the workout
+                summaryPageEl.style.display = 'none';
+                showMainMenu();
+            });
+        }
+
+        // Complete summary finalizes the workout
+        summaryCompleteBtnEl.addEventListener('click', () => {
+            // Collect ratings and notes
+            const summaryData = {
+                difficulty: parseInt(diffRatingEl.dataset.value) || 0,
+                fatigue: parseInt(fatRatingEl.dataset.value) || 0,
+                pain: parseInt(painRatingEl.dataset.value) || 0,
+                pump: parseInt(pumpRatingEl.dataset.value) || 0,
+                jointNotes: jointNotesEl.value.trim(),
+                additionalNotes: additionalNotesEl.value.trim(),
+                duration: summaryDurationEl.textContent
+            };
+            summaryPageEl.style.display = 'none';
+            completeWorkout(summaryData);
+        });
+
+        /**
+         * Finalize workout and move to past list, storing summary data.
+         * @param {Object} summary - ratings and notes from summary page
+         */
+        function completeWorkout(summary) {
+            const endTime = new Date();
+            const diffMs = endTime - startTime;
+            const diffSec = Math.floor(diffMs / 1000);
+            const minutes = Math.floor(diffSec / 60);
+            const seconds = diffSec % 60;
+            const elapsedStr = `${minutes}m ${seconds}s`;
+            // Save weight history for this workout
+            const completedDate = new Date().toISOString().slice(0, 10);
+            saveWeightHistory(completedDate);
+            try {
+                localStorage.setItem('weightHistory', JSON.stringify(weightHistory));
+            } catch (e) {}
+            // Build performed exercises array with weight inputs
+            const performed = [];
+            if (currentWorkout && currentWorkout.exercises) {
+                currentWorkout.exercises.forEach((ex, idx) => {
+                    const sets = [];
+                    for (let i = 1; i <= ex.sets; i++) {
+                        const key = `${idx}-${i}`;
+                        const val = activeWorkoutState && activeWorkoutState.inputs ? activeWorkoutState.inputs[key] : null;
+                        sets.push({ set: i, weight: val ? val.weight || 0 : 0, reps: val ? val.reps || 0 : 0 });
+                    }
+                    performed.push({ name: ex.name, sets: sets });
+                });
+            }
+            // Move workout to past list with summary
+            workoutsPast.push({
+                id: currentWorkout.id,
+                name: currentWorkout.name,
+                completedDate: completedDate,
+                elapsed: elapsedStr,
+                performedExercises: performed,
+                summary: summary
+            });
+            // Remove from to-do list
+            workoutsToDo = workoutsToDo.filter(w => w.id !== currentWorkout.id);
+            renderLists();
+            // Speak final message
+            speakMale('Piccola Anima complimenti anche oggi sei riuscita a superare i tuoi limiti');
+            // Clear active state
+            try {
+                localStorage.removeItem('activeWorkout');
+            } catch (e) {}
+            activeWorkoutState = null;
+            // Stop elapsed timer
+            if (elapsedIntervalId) {
+                clearInterval(elapsedIntervalId);
+                elapsedIntervalId = null;
+            }
+            // Show workouts page
+            showWorkoutsPage();
+        }
+
+        /**
+         * Show detail of a past workout with summary and performed exercises.
+         * @param {number} id
+         */
+        function showPastWorkoutDetail(id) {
+            const w = workoutsPast.find(p => p.id === id);
+            if (!w) return;
+            // Hide pages
+            mainMenuDiv.style.display = 'none';
+            workoutsPageDiv.style.display = 'none';
+            detailDiv.style.display = 'none';
+            nutritionPageEl.style.display = 'none';
+            chatPageEl.style.display = 'none';
+            summaryPageEl.style.display = 'none';
+            pastWorkoutPageEl.style.display = 'block';
+            exerciseHistoryPage.style.display = 'none';
+            // Hide bottom nav
+            if (bottomNav) bottomNav.style.display = 'none';
+            // Fill info
+            pastWorkoutNameElement.textContent = w.name;
+            // Format date as DD MMM YYYY
+            const dt = new Date(w.completedDate);
+            const dateLabel = dt.toLocaleDateString('it-IT', { day:'2-digit', month:'short', year:'numeric' });
+            pastWorkoutDateElement.textContent = dateLabel;
+            pastWorkoutDurationElement.textContent = w.elapsed;
+            pastExercisesContainerEl.innerHTML = '';
+            w.performedExercises.forEach(ex => {
+                const section = document.createElement('div');
+                section.style.marginBottom = '20px';
+                const h4 = document.createElement('h4');
+                h4.textContent = ex.name;
+                h4.style.color = '#ff4081';
+                section.appendChild(h4);
+                const table = document.createElement('table');
+                table.className = 'history-table';
+                const thead = document.createElement('thead');
+                thead.innerHTML = '<tr><th>Serie</th><th>Peso (Kg)</th><th>Ripetizioni</th></tr>';
+                table.appendChild(thead);
+                const tbody = document.createElement('tbody');
+                ex.sets.forEach(setObj => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${setObj.set}</td><td>${setObj.weight}</td><td>${setObj.reps}</td>`;
+                    tbody.appendChild(row);
+                });
+                table.appendChild(tbody);
+                section.appendChild(table);
+                pastExercisesContainerEl.appendChild(section);
+            });
+            // Show summary ratings and notes
+            pastSummaryContainerEl.innerHTML = '';
+            if (w.summary) {
+                const labels = ['Difficoltà', 'Fatica', 'Dolore articolare', 'Pump'];
+                const values = [w.summary.difficulty, w.summary.fatigue, w.summary.pain, w.summary.pump];
+                const descriptions = ['Molto facile', 'Facile', 'Moderata', 'Difficile', 'Molto difficile'];
+                values.forEach((val, idx) => {
+                    const p = document.createElement('p');
+                    p.innerHTML = `<strong>${labels[idx]}:</strong> ${val} (${descriptions[val - 1] || '-'})`;
+                    pastSummaryContainerEl.appendChild(p);
+                });
+                if (w.summary.jointNotes) {
+                    const p = document.createElement('p');
+                    p.innerHTML = `<strong>Note dolori articolari:</strong> ${w.summary.jointNotes}`;
+                    pastSummaryContainerEl.appendChild(p);
+                }
+                if (w.summary.additionalNotes) {
+                    const p = document.createElement('p');
+                    p.innerHTML = `<strong>Note aggiuntive:</strong> ${w.summary.additionalNotes}`;
+                    pastSummaryContainerEl.appendChild(p);
+                }
+            }
+        }
+
+        // Back from past workout detail
+        pastDetailBackBtnEl.addEventListener('click', () => {
+            pastWorkoutPageEl.style.display = 'none';
+            // Return to workouts page
+            showWorkoutsPage();
+        });
+
+        // Return to home directly from past workout detail
+        const pastDetailHomeBtnEl = document.getElementById('pastDetailHomeBtn');
+        if (pastDetailHomeBtnEl) {
+            pastDetailHomeBtnEl.addEventListener('click', () => {
+                pastWorkoutPageEl.style.display = 'none';
+                showMainMenu();
+            });
+        }
+
+        // Home button from workouts page
+        const homeFromWorkoutsBtn = document.getElementById('homeFromWorkouts');
+        if (homeFromWorkoutsBtn) {
+            homeFromWorkoutsBtn.addEventListener('click', () => {
+                showMainMenu();
+            });
+        }
+
+        // Nutrition menu click handler: open respective section
+        nutritionMenuEl.addEventListener('click', (e) => {
+            const item = e.target.closest('.nutrition-item');
+            if (!item) return;
+            const target = item.getAttribute('data-target');
+            showNutritionSection(target);
+        });
+
+        /**
+         * Show a specific nutrition section for editing and saving.
+         * @param {string} section - one of mealPlans, macros, advices, supplements, shopping
+         */
+        function showNutritionSection(section) {
+            // Hide menu and clear content
+            nutritionMenuEl.style.display = 'none';
+            nutritionContentEl.innerHTML = '';
+            // Provide a back button to return to nutrition menu
+            const backBtn = document.createElement('button');
+            backBtn.className = 'btn btn-secondary';
+            backBtn.textContent = '← Indietro';
+            backBtn.addEventListener('click', () => {
+                nutritionMenuEl.style.display = 'flex';
+                nutritionContentEl.innerHTML = '';
+            });
+            nutritionContentEl.appendChild(backBtn);
+            // Title for section
+            const title = document.createElement('h3');
+            title.textContent = {
+                mealPlans: 'Piani alimentari',
+                macros: 'Macronutrienti',
+                advices: 'Consigli nutrizionali',
+                supplements: 'Integrazioni',
+                shopping: 'Lista della spesa'
+            }[section] || section;
+            title.style.color = '#ff4081';
+            nutritionContentEl.appendChild(title);
+            // Ensure data object exists
+            if (!nutritionData[section]) nutritionData[section] = {};
+            const fields = ['Colazione', 'Pranzo', 'Cena', 'Spuntini'];
+            const inputs = {};
+            fields.forEach(field => {
+                const label = document.createElement('label');
+                label.textContent = field;
+                label.style.display = 'block';
+                label.style.marginTop = '8px';
+                nutritionContentEl.appendChild(label);
+                const textarea = document.createElement('textarea');
+                textarea.style.width = '100%';
+                textarea.style.minHeight = '60px';
+                textarea.style.backgroundColor = '#111';
+                textarea.style.border = '1px solid #333';
+                textarea.style.color = '#fff';
+                textarea.style.borderRadius = '4px';
+                textarea.style.padding = '6px';
+                const key = field.toLowerCase();
+                textarea.value = nutritionData[section][key] || '';
+                inputs[key] = textarea;
+                nutritionContentEl.appendChild(textarea);
+            });
+            // Save and Cancel buttons
+            const btnWrapper = document.createElement('div');
+            btnWrapper.style.marginTop = '10px';
+            btnWrapper.style.display = 'flex';
+            btnWrapper.style.gap = '10px';
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'btn btn-secondary';
+            cancelBtn.textContent = 'Annulla';
+            cancelBtn.addEventListener('click', () => {
+                // return to menu without saving
+                nutritionMenuEl.style.display = 'flex';
+                nutritionContentEl.innerHTML = '';
+            });
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'btn btn-primary';
+            saveBtn.textContent = 'Salva';
+            saveBtn.addEventListener('click', () => {
+                // Save each field
+                Object.keys(inputs).forEach(key => {
+                    nutritionData[section][key] = inputs[key].value.trim();
+                });
+                // Persist to localStorage
+                try {
+                    localStorage.setItem('nutritionData', JSON.stringify(nutritionData));
+                } catch (e) {}
+                // Show saved message
+                alert('Dati salvati con successo!');
+                nutritionMenuEl.style.display = 'flex';
+                nutritionContentEl.innerHTML = '';
+            });
+            btnWrapper.appendChild(cancelBtn);
+            btnWrapper.appendChild(saveBtn);
+            nutritionContentEl.appendChild(btnWrapper);
+        }
+    </script>
+</body>
+</html>
