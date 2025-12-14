@@ -1166,7 +1166,10 @@
              the specified number of weeks. If undefined the ISO week number
              will be displayed. -->
         <script>
-        let workoutsToDo = [
+        // Define default sample workouts. These are used only if no saved
+        // workouts are present in localStorage. Do not modify this array
+        // directly after initialization; instead assign a copy to workoutsToDo
+        const defaultWorkouts = [
             {
                 id: 1,
                 name: 'Gambe & Petto',
@@ -1188,6 +1191,9 @@
                 ]
             }
         ];
+        // Initialize workout lists. They will be overridden by values from
+        // localStorage if present. Otherwise a copy of defaultWorkouts will be used.
+        let workoutsToDo = [];
         let workoutsPast = [];
         let currentWorkout = null;
         let startTime = null;
@@ -1214,8 +1220,16 @@
             if (storedPast) {
                 workoutsPast = JSON.parse(storedPast);
             }
+            // If nothing is stored, populate with defaults and persist them
+            if (!storedToDo) {
+                workoutsToDo = defaultWorkouts.map(w => ({ ...w }));
+                saveWorkouts();
+            }
         } catch (e) {
             // ignore JSON parse errors and keep defaults
+            workoutsToDo = defaultWorkouts.map(w => ({ ...w }));
+            workoutsPast = [];
+            saveWorkouts();
         }
 
         /**
@@ -2695,10 +2709,11 @@
         }
 
         /**
-         * Display the door overlay with the daily quote and animate the doors
-         * opening. The quote is shown for 5 seconds before the doors slide
-         * apart. After the animation, the overlay is hidden and the main menu
-         * appears.
+         * Display the door overlay with the daily quote. The overlay stays
+         * visible until the user taps or clicks, at which point the quote
+         * dissolves and the doors slide apart. After the doors finish
+         * opening, the overlay hides and the main menu appears. This gives
+         * the user control over when to proceed instead of a fixed delay.
          */
         function showDoorOverlay() {
             // If overlay elements are not present, fallback directly to main menu
@@ -2706,22 +2721,34 @@
                 showMainMenu();
                 return;
             }
-            // Set quote text
+            // Set quote text and reset opacity
             quoteMessageEl.textContent = getDailyQuote();
+            quoteMessageEl.style.opacity = '1';
             // Display overlay and ensure doors are closed
             doorOverlay.style.display = 'block';
             doorLeft.style.transform = 'translateX(0)';
             doorRight.style.transform = 'translateX(0)';
-            // After 5 seconds, open doors
-            setTimeout(() => {
+            // Define a one‑time handler for opening the doors when the overlay
+            // is tapped/clicked
+            function openDoors() {
+                // Fade out the quote
+                quoteMessageEl.style.transition = 'opacity 0.5s ease';
+                quoteMessageEl.style.opacity = '0';
+                // Slide the doors apart
+                doorLeft.style.transition = 'transform 1s ease';
+                doorRight.style.transition = 'transform 1s ease';
                 doorLeft.style.transform = 'translateX(-100%)';
                 doorRight.style.transform = 'translateX(100%)';
-                // After the doors finish opening, hide the overlay and show main menu
+                // After doors open, hide overlay and show menu
                 setTimeout(() => {
                     doorOverlay.style.display = 'none';
+                    // Remove the listener to prevent multiple triggers
+                    doorOverlay.removeEventListener('click', openDoors);
                     showMainMenu();
                 }, 1000);
-            }, 5000);
+            }
+            // Attach the handler
+            doorOverlay.addEventListener('click', openDoors);
         }
 
         // If entry page is present, set up petals and entry button
