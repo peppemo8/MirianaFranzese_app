@@ -3442,6 +3442,7 @@
     const remoteData = await loadFromRemote();
     if (remoteData) {
       try {
+          
         if (remoteData.workoutsToDo) workoutsToDo = remoteData.workoutsToDo;
         if (remoteData.workoutsPast) workoutsPast = remoteData.workoutsPast;
         if (typeof renderLists === 'function') renderLists();
@@ -3455,7 +3456,26 @@
         originalSaveWorkouts.apply(this, args);
         saveToRemote();
       };
+    
     }
+          // Real-time update listener
+    try {
+        const { onSnapshot, doc } = await import('https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js');
+        const workoutsDocRef = doc(db, 'workouts', 'userWorkouts');
+        onSnapshot(workoutsDocRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.data();
+                workoutsToDo = data.workoutsToDo || [];
+                workoutsPast = data.workoutsPast || [];
+                if (typeof renderLists === 'function') renderLists();
+                localStorage.setItem('workoutsToDo', JSON.stringify(workoutsToDo));
+                localStorage.setItem('workoutsPast', JSON.stringify(workoutsPast));
+            }
+        });
+    } catch (error) {
+        console.error('Errore listener Firestore', error);
+    }
+
   });
 })();
 </script>
